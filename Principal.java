@@ -7,13 +7,8 @@ public class Principal {
     
     public void menu_principal () {
         JFrame jf_menu_principal = new JFrame();
-
         JPanel jp_menu_lateral = new JPanel();
         JPanel jp_conteudo = new JPanel();
-
-        JButton btn_inicio = new JButton("Página Inicial");
-        JButton btn_reservas = new JButton("Reservas");
-        JButton btn_hospedes = new JButton("Hóspedes");
 
         JTextArea ta_conteudo = new JTextArea();
 
@@ -24,27 +19,72 @@ public class Principal {
         jp_conteudo.setLayout(new BorderLayout());
         jp_conteudo.add(ta_conteudo);
 
-        jp_menu_lateral.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
+        menu_lateral(jp_menu_lateral);
 
-        gbc.gridx = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 5, 5, 5);
-
-        gbc.gridy = 0;
-        gbc.weighty = 0;
-        jp_menu_lateral.add(btn_inicio, gbc);
-
-        gbc.gridy = 1;
-        jp_menu_lateral.add(btn_reservas, gbc);
-
-        gbc.gridy = 2;
-        jp_menu_lateral.add(btn_hospedes, gbc);
-
-        
         jf_menu_principal.setSize(600, 550);
         jf_menu_principal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jf_menu_principal.setLocationRelativeTo(null);
         jf_menu_principal.setVisible(true);
+    }
+
+    public void menu_lateral (JPanel jp_menu_lateral) {
+        JButton btn_inicio = new JButton("Página Inicial");
+        JButton btn_reservas = new JButton("Reservas");
+        JButton btn_hospedes = new JButton("Hóspedes");
+
+        JLabel jl_logo = new JLabel("Hotelaria");
+        jl_logo.setFont(new Font("Arial", Font.BOLD, 18));
+
+        jp_menu_lateral.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.gridx = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        gbc.gridy = 0;
+        gbc.weighty = 0;
+        jp_menu_lateral.add(jl_logo, gbc);
+
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridy = 1;
+        jp_menu_lateral.add(btn_inicio, gbc);
+
+        gbc.gridy = 2;
+        jp_menu_lateral.add(btn_reservas, gbc);
+
+        gbc.gridy = 3;
+        jp_menu_lateral.add(btn_hospedes, gbc);
+
+        gbc.gridy = 4;
+        gbc.weighty = 1.0;
+        jp_menu_lateral.add(new JPanel(), gbc);
+
+
+        btn_inicio.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "Página Inicial");
+            }
+
+        });
+
+        btn_reservas.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "Reservas");
+            }
+
+        });
+
+        btn_hospedes.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "Hóspedes");
+            }
+
+        });
     }
 }
