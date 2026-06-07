@@ -10,16 +10,13 @@ public class Principal {
         JPanel jp_menu_lateral = new JPanel();
         JPanel jp_conteudo = new JPanel();
 
-        JTextArea ta_conteudo = new JTextArea();
-
         jf_menu_principal.setLayout(new BorderLayout());
         jf_menu_principal.add(jp_menu_lateral, BorderLayout.WEST);
         jf_menu_principal.add(jp_conteudo, BorderLayout.CENTER);
 
         jp_conteudo.setLayout(new BorderLayout());
-        jp_conteudo.add(ta_conteudo);
 
-        menu_lateral(jp_menu_lateral);
+        menu_lateral(jp_menu_lateral, jp_conteudo);
 
         jf_menu_principal.setSize(600, 550);
         jf_menu_principal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -27,7 +24,7 @@ public class Principal {
         jf_menu_principal.setVisible(true);
     }
 
-    public void menu_lateral (JPanel jp_menu_lateral) {
+    public void menu_lateral (JPanel jp_menu_lateral, JPanel jp_conteudo) {
         JButton btn_inicio = new JButton("Página Inicial");
         JButton btn_reservas = new JButton("Reservas");
         JButton btn_hospedes = new JButton("Hóspedes");
@@ -64,7 +61,7 @@ public class Principal {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Página Inicial");
+                pagina_inicial(jp_conteudo);
             }
 
         });
@@ -73,7 +70,7 @@ public class Principal {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Reservas");
+                reservas(jp_conteudo);
             }
 
         });
@@ -82,9 +79,45 @@ public class Principal {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Hóspedes");
+                hospedes(jp_conteudo);
             }
 
         });
+    }
+
+    public void pagina_inicial (JPanel jp_conteudo) {
+        jp_conteudo.removeAll();
+
+        JLabel jl_pagina_inicial = new JLabel("página check-ins/check-outs");
+        jl_pagina_inicial.setFont(new Font("Arial", Font.BOLD, 16));
+        jl_pagina_inicial.setHorizontalAlignment(SwingConstants.CENTER);
+
+        jp_conteudo.add(jl_pagina_inicial, BorderLayout.CENTER);
+        jp_conteudo.revalidate();
+        jp_conteudo.repaint();
+    }
+
+    public void reservas (JPanel jp_conteudo) {
+        jp_conteudo.removeAll();
+
+        JLabel jl_reservas = new JLabel("página de reservas");
+        jl_reservas.setFont(new Font("Arial", Font.BOLD, 16));
+        jl_reservas.setHorizontalAlignment(SwingConstants.CENTER);
+
+        jp_conteudo.add(jl_reservas, BorderLayout.CENTER);
+        jp_conteudo.revalidate();
+        jp_conteudo.repaint();
+    }
+
+    public void hospedes (JPanel jp_conteudo) {
+        jp_conteudo.removeAll();
+
+        JLabel jl_hospedes = new JLabel("página de hóspedes");
+        jl_hospedes.setFont(new Font("Arial", Font.BOLD, 16));
+        jl_hospedes.setHorizontalAlignment(SwingConstants.CENTER);
+
+        jp_conteudo.add(jl_hospedes, BorderLayout.CENTER);
+        jp_conteudo.revalidate();
+        jp_conteudo.repaint();
     }
 }
