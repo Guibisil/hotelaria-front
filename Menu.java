@@ -15,16 +15,16 @@ public class Menu {
         jl_titulo.setFont(new Font("Arial", Font.BOLD, 24));
         jl_titulo.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JButton btn_cadastrar = new JButton("Iniciar");
+        JButton btn_menu = new JButton("Iniciar");
         Dimension tamanho_btn = new Dimension(100, 30);
-        btn_cadastrar.setPreferredSize(tamanho_btn);
-        btn_cadastrar.setMaximumSize(tamanho_btn);
-        btn_cadastrar.setMinimumSize(tamanho_btn);
+        btn_menu.setPreferredSize(tamanho_btn);
+        btn_menu.setMaximumSize(tamanho_btn);
+        btn_menu.setMinimumSize(tamanho_btn);
 
         jp_painel.setLayout(new GridLayout(2, 1, 10, 10));
 
         jp_painel.add(jl_titulo);
-        jp_btn.add(btn_cadastrar);
+        jp_btn.add(btn_menu);
         jp_painel.add(jp_btn);
 
         jf_janela.setSize(300, 250);
@@ -33,11 +33,13 @@ public class Menu {
         jf_janela.setLocationRelativeTo(null);
         jf_janela.setVisible(true);
 
-        btn_cadastrar.addActionListener(new ActionListener() {
+        btn_menu.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                jf_janela.setVisible(false);
+                Principal principal = new Principal();
+                principal.menu_principal();
             }
 
         });
