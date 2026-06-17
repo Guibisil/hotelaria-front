@@ -17,7 +17,7 @@ public class TelaReservas extends JPanel {
     private DefaultTableModel modeloTabela;
     private JTable tabela_reservas;
 
-    public  TelaReservas (){
+    public TelaReservas (){
         this.setLayout(new BorderLayout());
 
         JPanel jp_topo = new JPanel((new BorderLayout()));

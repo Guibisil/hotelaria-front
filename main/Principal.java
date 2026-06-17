@@ -9,12 +9,15 @@ public class Principal {
         JFrame jf_menu_principal = new JFrame();
         JPanel jp_menu_lateral = new JPanel();
         JPanel jp_conteudo = new JPanel();
+        jp_conteudo.setBackground(Color.WHITE);
 
         jf_menu_principal.setLayout(new BorderLayout());
         jf_menu_principal.add(jp_menu_lateral, BorderLayout.WEST);
         jf_menu_principal.add(jp_conteudo, BorderLayout.CENTER);
 
         jp_conteudo.setLayout(new BorderLayout());
+        
+        pagina_inicial(jp_conteudo);
 
         menu_lateral(jp_menu_lateral, jp_conteudo);
 
@@ -88,11 +91,10 @@ public class Principal {
     public void pagina_inicial (JPanel jp_conteudo) {
         jp_conteudo.removeAll();
 
-        JLabel jl_pagina_inicial = new JLabel("página check-ins/check-outs");
-        jl_pagina_inicial.setFont(new Font("Arial", Font.BOLD, 16));
-        jl_pagina_inicial.setHorizontalAlignment(SwingConstants.CENTER);
+        TelaPrincipal tela_principal = new TelaPrincipal();
 
-        jp_conteudo.add(jl_pagina_inicial, BorderLayout.CENTER);
+        jp_conteudo.add(tela_principal);
+
         jp_conteudo.revalidate();
         jp_conteudo.repaint();
     }
