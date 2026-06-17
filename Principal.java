@@ -100,13 +100,20 @@ public class Principal {
     public void reservas (JPanel jp_conteudo) {
         jp_conteudo.removeAll();
 
-        JLabel jl_reservas = new JLabel("página de reservas");
-        jl_reservas.setFont(new Font("Arial", Font.BOLD, 16));
-        jl_reservas.setHorizontalAlignment(SwingConstants.CENTER);
+        TelaReservas telaReservas = new TelaReservas();
 
-        jp_conteudo.add(jl_reservas, BorderLayout.CENTER);
+        jp_conteudo.add(telaReservas, BorderLayout.CENTER);
+
         jp_conteudo.revalidate();
         jp_conteudo.repaint();
+//
+//        JLabel jl_reservas = new JLabel("página de reservas");
+//        jl_reservas.setFont(new Font("Arial", Font.BOLD, 16));
+//        jl_reservas.setHorizontalAlignment(SwingConstants.CENTER);
+//
+//        jp_conteudo.add(jl_reservas, BorderLayout.CENTER);
+//        jp_conteudo.revalidate();
+//        jp_conteudo.repaint();
     }
 
     public void hospedes (JPanel jp_conteudo) {
