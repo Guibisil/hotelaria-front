@@ -1,9 +1,15 @@
+package main;
+
+import main.Checks;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class TelaPrincipal extends JPanel {
+
+    private final Checks check = new Checks();
 
     public TelaPrincipal() {
         pagina_checks();
@@ -19,7 +25,7 @@ public class TelaPrincipal extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String idHospede = e.getActionCommand();
-                JOptionPane.showMessageDialog(null, idHospede);
+                check.novo_check();
             }
         };
 
