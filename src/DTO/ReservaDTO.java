@@ -1,30 +1,59 @@
 package DTO;
 
+import com.google.gson.annotations.SerializedName;
+
 public class ReservaDTO {
 
     private Long id;
-    private int room_id;
-    private String checkin_date;
-    private String checkout_date;
+    
+    @SerializedName("room_id")
+    private int roomId;
+    
+    @SerializedName("checkin_date")
+    private String checkinDate;
+    
+    @SerializedName("checkout_date")
+    private String checkoutDate;
+    
     private String status;
 
     public Long getId() {
         return id;
     }
 
-    public int getRoom_id() {
-        return room_id;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public int getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(int roomId) {
+        this.roomId = roomId;
+    }
+
+    public String getCheckinDate() {
+        return checkinDate;
+    }
+
+    public void setCheckinDate(String checkinDate) {
+        this.checkinDate = checkinDate;
+    }
+
+    public String getCheckoutDate() {
+        return checkoutDate;
+    }
+
+    public void setCheckoutDate(String checkoutDate) {
+        this.checkoutDate = checkoutDate;
     }
 
     public String getStatus() {
         return status;
     }
 
-    public String getCheckout_date() {
-        return checkout_date;
-    }
-
-    public String getCheckin_date() {
-        return checkin_date;
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
