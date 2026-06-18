@@ -26,8 +26,19 @@ public class TelaNovoHospede {
         JLabel jl_data_nas = new JLabel("Data de nascimento");
 
         JTextField txt_nome = new JTextField();
-        JTextField txt_cpf = new JTextField();
         JTextField txt_email = new JTextField();
+
+        JFormattedTextField txt_cpf = null;
+        try {
+            MaskFormatter mascara = new MaskFormatter("###.###.###-##");
+            mascara.setPlaceholderCharacter('_');
+
+            txt_cpf = new JFormattedTextField(mascara);
+            txt_cpf.setColumns(11);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        JFormattedTextField txt_cpf_formatado = txt_cpf;
 
         JFormattedTextField txt_data_nas = null;
         try {
@@ -39,13 +50,16 @@ public class TelaNovoHospede {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        JFormattedTextField txt_data_formatada = txt_data_nas;
 
         JButton btn_hospede = new JButton("Cadastrar hóspede");
-        JFormattedTextField txt_data_formatada = txt_data_nas;
+
         btn_hospede.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cadastro(txt_nome, txt_cpf, txt_email, txt_data_formatada, jf_novo_hospede);
+                if (validar(txt_nome, txt_cpf_formatado, txt_email, txt_data_formatada)) {
+                    cadastro(txt_nome, txt_cpf_formatado, txt_email, txt_data_formatada, jf_novo_hospede);
+                }
             }
         });
 
@@ -75,7 +89,27 @@ public class TelaNovoHospede {
         jf_novo_hospede.setVisible(true);
     }
 
-    public void cadastro(JTextField txt_nome, JTextField txt_cpf, JTextField txt_email, JFormattedTextField txt_data_formatada, JFrame jf_novo_hospede) {
+    public boolean validar(JTextField txt_nome, JFormattedTextField txt_cpf, JTextField txt_email, JFormattedTextField txt_data_formatada){
+        String regex_email = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
+
+        if (txt_nome.getText().trim().isEmpty() || txt_email.getText().trim().isEmpty() || txt_cpf.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Preencha todos os campos");
+            return false;
+        } else if (!txt_email.getText().matches(regex_email)) {
+            JOptionPane.showMessageDialog(null, "Email inválido.");
+            return false;
+        } else if (txt_cpf.getText().contains("_")) {
+            JOptionPane.showMessageDialog(null, "Preencha o cpf completa.");
+            return false;
+        } else if (txt_data_formatada.getText().contains("_")) {
+            JOptionPane.showMessageDialog(null, "Preencha a data de nascimento completa.");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public void cadastro(JTextField txt_nome, JFormattedTextField txt_cpf, JTextField txt_email, JFormattedTextField txt_data_formatada, JFrame jf_novo_hospede) {
         String data_conv = txt_data_formatada.getText()
                 .replaceAll("(\\d{2})/(\\d{2})/(\\d{4})", "$3-$2-$1");
 
@@ -106,7 +140,7 @@ public class TelaNovoHospede {
                 JOptionPane.showMessageDialog(null, "Hóspede cadastrado com sucesso!");
 
                 new TelaHospedes();
-                jf_novo_hospede.setVisible(false);
+                jf_novo_hospede.dispose();
             } else if (response.statusCode() == 400) {
                 JOptionPane.showMessageDialog(null, "BLoqueado pela Regra de Negocio: \n" + response.body(), "Aviso", JOptionPane.WARNING_MESSAGE);
             } else {
