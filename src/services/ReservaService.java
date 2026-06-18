@@ -3,6 +3,8 @@ package services;
 import DTO.ReservaDTO;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import config.ApiConfig;
+import enums.ReservaAction;
 
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -12,11 +14,11 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class ReservaService {
+public class ReservaService implements IReservaService {
 
     private final HttpClient client;
     private final Gson gson;
-    private static final String BASE_URL = "http://localhost:8080/api/reservations";
+    private static final String RESERVATIONS_URL = ApiConfig.BASE_URL + "/reservations";
 
     public ReservaService() {
         this.client = HttpClient.newHttpClient();
@@ -26,9 +28,10 @@ public class ReservaService {
     /**
      * Busca todas as reservas de forma assíncrona da API.
      */
+    @Override
     public CompletableFuture<List<ReservaDTO>> buscarReservas() {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL))
+                .uri(URI.create(RESERVATIONS_URL))
                 .GET()
                 .build();
 
@@ -46,9 +49,10 @@ public class ReservaService {
     /**
      * Realiza uma ação (como 'checkin' ou 'checkout') de forma assíncrona na API.
      */
-    public CompletableFuture<Void> realizarAcao(String id, String acao) {
+    @Override
+    public CompletableFuture<Void> realizarAcao(String id, ReservaAction acao) {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/" + id + "/" + acao))
+                .uri(URI.create(RESERVATIONS_URL + "/" + id + "/" + acao.getValue()))
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
 
