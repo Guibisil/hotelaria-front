@@ -1,10 +1,10 @@
 package services;
 
-import DTO.HospedesDTO;
+import DTO.HospedeDTO;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface IHospedeService {
-    CompletableFuture<List<HospedesDTO>> buscarHospedes();
-    CompletableFuture<Void> cadastrarHospede(HospedesDTO hospede);
+    CompletableFuture<List<HospedeDTO>> buscarHospedes();
+    CompletableFuture<Void> cadastrarHospede(HospedeDTO hospede);
 }
