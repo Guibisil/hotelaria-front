@@ -1,14 +1,12 @@
 package main;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import java.util.HashMap;
 
-public class Checks {
+public class TelaCheckout {
 
-    public void novo_check() {
+    public TelaCheckout (String id_guest, String id_room) {
         JFrame jf_janela_check = new JFrame();
         JPanel jp_valor = new JPanel();
         JPanel jp_info = new JPanel();
@@ -19,12 +17,16 @@ public class Checks {
 
         info_pessoas(jp_info, jl_check, jp_valor);
 
+        jp_info.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        jp_valor.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         jf_layout(jf_janela_check, jp_valor, jp_info, jl_check, btn_pag);
 
-        jf_janela_check.setSize(300, 350);
+        jf_janela_check.setSize(250, 400);
         jf_janela_check.setLocationRelativeTo(null);
         jf_janela_check.setVisible(true);
     }
+
 
     public void info_pessoas(JPanel jp_info, JLabel check, JPanel jp_valor) {
         HashMap<String, String> info_hospede = new HashMap<>();
