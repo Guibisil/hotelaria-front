@@ -33,7 +33,7 @@ public class TelaHospedes extends JPanel {
         DsButton btnNovoHospede = new DsButton("Novo Hóspede", DsButton.ButtonType.PRIMARY);
 
         btnNovoHospede.addActionListener(e -> {
-            TelaNovoHospede telaNovo = new TelaNovoHospede(controller, this);
+            TelaNovoHospede telaNovo = new TelaNovoHospede(controller, this::carregarHospedes);
             telaNovo.setVisible(true);
         });
 

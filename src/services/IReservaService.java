@@ -9,4 +9,5 @@ import java.util.concurrent.CompletableFuture;
 public interface IReservaService {
     CompletableFuture<List<ReservaDTO>> buscarReservas();
     CompletableFuture<Void> realizarAcao(String id, ReservaAction acao);
+    CompletableFuture<Void> criarReserva(ReservaDTO reserva);
 }

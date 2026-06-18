@@ -19,16 +19,16 @@ import java.awt.event.ActionEvent;
 public class TelaNovoHospede extends DsModal {
 
     private final HospedeController controller;
-    private final TelaHospedes telaHospedesPai;
+    private final Runnable onSuccess;
     private DsTextField txtNome;
     private DsTextField txtEmail;
     private DsFormattedTextField txtCpf;
     private DsFormattedTextField txtDataNasc;
 
-    public TelaNovoHospede(HospedeController controller, TelaHospedes telaHospedesPai) {
+    public TelaNovoHospede(HospedeController controller, Runnable onSuccess) {
         super("Novo Hóspede", 350, 500);
         this.controller = controller;
-        this.telaHospedesPai = telaHospedesPai;
+        this.onSuccess = onSuccess;
 
         initComponents();
     }
@@ -89,8 +89,8 @@ public class TelaNovoHospede extends DsModal {
             controller.cadastrarHospede(hospede)
                 .thenRun(() -> SwingUtilities.invokeLater(() -> {
                     DsDialog.showSuccess(this, "Hóspede cadastrado com sucesso!");
-                    if (telaHospedesPai != null) {
-                        telaHospedesPai.carregarHospedes();
+                    if (onSuccess != null) {
+                        onSuccess.run();
                     }
                     this.dispose();
                 }))

@@ -10,6 +10,7 @@ import components.DsTimelineTable;
 import components.DsTitleLabel;
 import components.DsDialog;
 import controllers.ReservaController;
+import controllers.NovaReservaController;
 import enums.ReservaAction;
 import models.ui.ReservaTimelineTableModel;
 import theme.DesignTokens.ColorPalette;
@@ -26,6 +27,7 @@ public class TelaReservas extends JPanel {
     private ReservaTimelineTableModel modeloTabela;
     private final DsTimelineTable tabelaReservas;
     private ReservaController controller;
+    private NovaReservaController novaReservaController;
 
     public TelaReservas() {
         this.setLayout(new BorderLayout());
@@ -38,6 +40,18 @@ public class TelaReservas extends JPanel {
         DsTitleLabel jlTitulo = new DsTitleLabel("Mapa de Reservas");
 
         DsButton btnNovaReserva = new DsButton("Nova Reserva", ButtonType.PRIMARY);
+        btnNovaReserva.addActionListener(e -> {
+            if (novaReservaController != null) {
+                Window parentWindow = SwingUtilities.getWindowAncestor(this);
+                JFrame parentFrame = parentWindow instanceof JFrame ? (JFrame) parentWindow : null;
+                TelaNovaReserva modal = new TelaNovaReserva(parentFrame, novaReservaController);
+                modal.setVisible(true);
+                // Refresh after modal closes
+                carregarReservas();
+            } else {
+                DsDialog.showError(this, "Controller de nova reserva não configurado", "Erro");
+            }
+        });
 
         jpTopo.add(jlTitulo, BorderLayout.WEST);
         jpTopo.add(btnNovaReserva, BorderLayout.EAST);
@@ -134,6 +148,10 @@ public class TelaReservas extends JPanel {
     public void setController(ReservaController controller) {
         this.controller = controller;
         carregarReservas();
+    }
+
+    public void setNovaReservaController(NovaReservaController novaReservaController) {
+        this.novaReservaController = novaReservaController;
     }
 
     private void carregarReservas() {
