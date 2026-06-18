@@ -1,9 +1,10 @@
 package views.hospedes;
 
-import DTO.HospedesDTO;
+import DTO.HospedeDTO;
 import components.DsButton;
 import components.DsTable;
 import components.DsTitleLabel;
+import components.DsDialog;
 import controllers.HospedeController;
 import theme.DesignTokens.ColorPalette;
 import theme.DesignTokens.Spacing;
@@ -32,7 +33,7 @@ public class TelaHospedes extends JPanel {
         DsButton btnNovoHospede = new DsButton("Novo Hóspede", DsButton.ButtonType.PRIMARY);
 
         btnNovoHospede.addActionListener(e -> {
-            TelaNovoHospede telaNovo = new TelaNovoHospede(controller);
+            TelaNovoHospede telaNovo = new TelaNovoHospede(controller, this);
             telaNovo.setVisible(true);
         });
 
@@ -64,22 +65,33 @@ public class TelaHospedes extends JPanel {
 
     public void setController(HospedeController controller) {
         this.controller = controller;
-        this.controller.carregarHospedes();
+        carregarHospedes();
     }
 
-    public void atualizarTabela(List<HospedesDTO> listaHospedes) {
+    public void carregarHospedes() {
+        if (controller == null) return;
+        controller.carregarHospedes().thenAccept(hospedes -> {
+            SwingUtilities.invokeLater(() -> {
+                atualizarTabela(hospedes);
+            });
+        }).exceptionally(ex -> {
+            SwingUtilities.invokeLater(() -> {
+                ex.printStackTrace();
+                DsDialog.showError(this, "Erro ao carregar hóspedes. Verifique o backend.", "Erro");
+            });
+            return null;
+        });
+    }
+
+    private void atualizarTabela(List<HospedeDTO> listaHospedes) {
         modeloTabela.setRowCount(0);
-        for (HospedesDTO r : listaHospedes) {
+        for (HospedeDTO r : listaHospedes) {
             modeloTabela.addRow(new Object[]{
                     r.getName(),
                     r.getCpf(),
                     r.getEmail(),
-                    r.getBirth_date(),
+                    r.getBirthDate(),
             });
         }
-    }
-
-    public void mostrarMensagemErro(String mensagem, String titulo) {
-        JOptionPane.showMessageDialog(this, mensagem, titulo, JOptionPane.ERROR_MESSAGE);
     }
 }

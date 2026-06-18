@@ -8,6 +8,7 @@ import components.DsTimelineCell;
 import components.DsTimelineCellRenderer;
 import components.DsTimelineTable;
 import components.DsTitleLabel;
+import components.DsDialog;
 import controllers.ReservaController;
 import enums.ReservaAction;
 import models.ui.ReservaTimelineTableModel;
@@ -18,15 +19,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
 
 public class TelaReservas extends JPanel {
 
     private ReservaTimelineTableModel modeloTabela;
     private final DsTimelineTable tabelaReservas;
-    private final ReservaController controller;
+    private ReservaController controller;
 
-    public TelaReservas(services.IReservaService reservaService, services.IQuartoService quartoService, services.IHospedeService hospedeService) {
-        this.controller = new ReservaController(this, reservaService, quartoService, hospedeService);
+    public TelaReservas() {
         this.setLayout(new BorderLayout());
         this.setBackground(ColorPalette.BACKGROUND);
 
@@ -72,14 +73,28 @@ public class TelaReservas extends JPanel {
                     DsTimelineCell cell = (DsTimelineCell) val;
                     String id = cell.getId();
                     btnCheckin.setEnabled(false);
-                    controller.realizarAcao(id, ReservaAction.CHECKIN, 
-                        () -> mostrarMensagemSucesso("Ação 'check-in' realizada com sucesso!"),
-                        () -> btnCheckin.setEnabled(true)
-                    );
+                    controller.realizarAcao(id, ReservaAction.CHECKIN)
+                        .thenRun(() -> SwingUtilities.invokeLater(() -> {
+                            DsDialog.showSuccess(this, "Ação 'check-in' realizada com sucesso!");
+                            btnCheckin.setEnabled(true);
+                            carregarReservas();
+                        }))
+                        .exceptionally(ex -> {
+                            SwingUtilities.invokeLater(() -> {
+                                btnCheckin.setEnabled(true);
+                                String msg = controller.extrairMensagemErro(ex);
+                                if (controller.isBusinessRuleException(ex)) {
+                                    DsDialog.showWarning(this, msg, "Aviso");
+                                } else {
+                                    DsDialog.showError(this, msg, "Erro");
+                                }
+                            });
+                            return null;
+                        });
                     return;
                 }
             }
-            mostrarAviso("Selecione uma reserva válida na tabela primeiro", "Aviso");
+            DsDialog.showWarning(this, "Selecione uma reserva válida na tabela primeiro", "Aviso");
         });
 
         btnCheckout.addActionListener(e -> {
@@ -91,17 +106,54 @@ public class TelaReservas extends JPanel {
                     DsTimelineCell cell = (DsTimelineCell) val;
                     String id = cell.getId();
                     btnCheckout.setEnabled(false);
-                    controller.realizarAcao(id, ReservaAction.CHECKOUT,
-                        () -> mostrarMensagemSucesso("Ação 'check-out' realizada com sucesso!"),
-                        () -> btnCheckout.setEnabled(true)
-                    );
+                    controller.realizarAcao(id, ReservaAction.CHECKOUT)
+                        .thenRun(() -> SwingUtilities.invokeLater(() -> {
+                            DsDialog.showSuccess(this, "Ação 'check-out' realizada com sucesso!");
+                            btnCheckout.setEnabled(true);
+                            carregarReservas();
+                        }))
+                        .exceptionally(ex -> {
+                            SwingUtilities.invokeLater(() -> {
+                                btnCheckout.setEnabled(true);
+                                String msg = controller.extrairMensagemErro(ex);
+                                if (controller.isBusinessRuleException(ex)) {
+                                    DsDialog.showWarning(this, msg, "Aviso");
+                                } else {
+                                    DsDialog.showError(this, msg, "Erro");
+                                }
+                            });
+                            return null;
+                        });
                     return;
                 }
             }
-            mostrarAviso("Selecione uma reserva válida na tabela primeiro", "Aviso");
+            DsDialog.showWarning(this, "Selecione uma reserva válida na tabela primeiro", "Aviso");
         });
+    }
 
-        controller.carregarReservas();
+    public void setController(ReservaController controller) {
+        this.controller = controller;
+        carregarReservas();
+    }
+
+    private void carregarReservas() {
+        if (controller == null) return;
+        controller.carregarReservas().thenAccept(data -> {
+            List<LocalDate> datas = new ArrayList<>();
+            LocalDate hoje = LocalDate.now();
+            for (int i = 0; i <= 60; i++) {
+                datas.add(hoje.plusDays(i));
+            }
+            SwingUtilities.invokeLater(() -> {
+                atualizarTabelaTimeline(data.quartos, datas, data.reservas);
+            });
+        }).exceptionally(ex -> {
+            SwingUtilities.invokeLater(() -> {
+                ex.printStackTrace();
+                DsDialog.showError(this, "Erro ao carregar mapa de reservas. Verifique se o backend está rodando.", "Erro de Conexão");
+            });
+            return null;
+        });
     }
 
     public void atualizarTabelaTimeline(List<QuartoDTO> quartos, List<LocalDate> datas, List<ReservaDTO> reservas) {
@@ -114,17 +166,5 @@ public class TelaReservas extends JPanel {
             tabelaReservas.getColumnModel().getColumn(0).setPreferredWidth(100);
             tabelaReservas.getColumnModel().getColumn(0).setMinWidth(100);
         }
-    }
-
-    public void mostrarMensagemSucesso(String mensagem) {
-        JOptionPane.showMessageDialog(this, mensagem);
-    }
-
-    public void mostrarMensagemErro(String mensagem, String titulo) {
-        JOptionPane.showMessageDialog(this, mensagem, titulo, JOptionPane.ERROR_MESSAGE);
-    }
-
-    public void mostrarAviso(String mensagem, String titulo) {
-        JOptionPane.showMessageDialog(this, mensagem, titulo, JOptionPane.WARNING_MESSAGE);
     }
 }
