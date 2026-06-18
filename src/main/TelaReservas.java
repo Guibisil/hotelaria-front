@@ -1,145 +1,130 @@
 package main;
 
+import DTO.QuartoDTO;
 import DTO.ReservaDTO;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import components.DsButton;
+import components.DsButton.ButtonType;
+import components.DsTimelineCell;
+import components.DsTimelineCellRenderer;
+import components.DsTimelineTable;
+import components.DsTitleLabel;
+import controllers.ReservaController;
+import enums.ReservaAction;
+import models.ui.ReservaTimelineTableModel;
+import theme.DesignTokens.ColorPalette;
+import theme.DesignTokens.Spacing;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.time.LocalDate;
 import java.util.List;
 
 public class TelaReservas extends JPanel {
 
-    private DefaultTableModel modeloTabela;
-    private JTable tabela_reservas;
+    private ReservaTimelineTableModel modeloTabela;
+    private final DsTimelineTable tabelaReservas;
+    private final ReservaController controller;
 
-    public TelaReservas (){
+    public TelaReservas() {
+        this.controller = new ReservaController(this);
         this.setLayout(new BorderLayout());
+        this.setBackground(ColorPalette.BACKGROUND);
 
-        JPanel jp_topo = new JPanel((new BorderLayout()));
-        jp_topo.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        JPanel jpTopo = new JPanel(new BorderLayout());
+        jpTopo.setBackground(ColorPalette.BACKGROUND);
+        jpTopo.setBorder(BorderFactory.createEmptyBorder(Spacing.MD, Spacing.MD, Spacing.MD, Spacing.MD));
 
-        JLabel jl_titulo = new JLabel("Gerenciamento de Reservas");
-        jl_titulo.setFont(new Font("Arial", Font.BOLD, 20));
+        DsTitleLabel jlTitulo = new DsTitleLabel("Mapa de Reservas");
 
-        JButton btn_nova_reserva = new JButton("Nova Reserva");
-        btn_nova_reserva.setBackground(new Color(40,167, 69));
-        btn_nova_reserva.setForeground(Color.WHITE);
+        DsButton btnNovaReserva = new DsButton("Nova Reserva", ButtonType.PRIMARY);
 
-        jp_topo.add(jl_titulo, BorderLayout.WEST);
-        jp_topo.add(btn_nova_reserva, BorderLayout.EAST);
+        jpTopo.add(jlTitulo, BorderLayout.WEST);
+        jpTopo.add(btnNovaReserva, BorderLayout.EAST);
 
-        String[] colunas = {"ID", "Quarto", "Entrada", "Saída", "Status"};
+        tabelaReservas = new DsTimelineTable();
+        tabelaReservas.setDefaultRenderer(Object.class, new DsTimelineCellRenderer());
+        
+        tabelaReservas.setModel(new ReservaTimelineTableModel(null, null, null));
 
-        modeloTabela = new DefaultTableModel(colunas, 0);
-        tabela_reservas = new JTable((modeloTabela));
-        tabela_reservas.setRowHeight(25);
+        JScrollPane jpTabela = new JScrollPane(tabelaReservas);
+        jpTabela.setBorder(BorderFactory.createEmptyBorder(0, Spacing.MD, 0, Spacing.MD));
+        jpTabela.getViewport().setBackground(ColorPalette.BACKGROUND);
 
-        JScrollPane jp_tabela = new JScrollPane(tabela_reservas);
-        jp_tabela.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        JPanel jpAcoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, Spacing.MD, Spacing.MD));
+        jpAcoes.setBackground(ColorPalette.BACKGROUND);
 
-        JPanel jp_acoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10,10));
+        DsButton btnCheckin = new DsButton("Fazer check-in", ButtonType.SECONDARY);
+        DsButton btnCheckout = new DsButton("Fazer checkout", ButtonType.DANGER);
 
-        JButton btn_checkin = new JButton("Fazer check-in");
-        JButton btn_checkout = new JButton("Fazer checkout");
+        jpAcoes.add(btnCheckin);
+        jpAcoes.add(btnCheckout);
 
-        btn_checkin.setBackground(new Color(0,123,255));
-        btn_checkin.setForeground(Color.WHITE);
+        this.add(jpTopo, BorderLayout.NORTH);
+        this.add(jpAcoes, BorderLayout.SOUTH);
+        this.add(jpTabela, BorderLayout.CENTER);
 
-        btn_checkout.setBackground(new Color(220,53,69));
-        btn_checkout.setForeground(Color.WHITE);
-
-        jp_acoes.add(btn_checkin);
-        jp_acoes.add(btn_checkout);
-
-        this.add(jp_topo, BorderLayout.NORTH);
-        this.add(jp_acoes, BorderLayout.SOUTH);
-        this.add(jp_tabela, BorderLayout.CENTER);
-
-        btn_checkin.addActionListener(e -> {
-            int linha = tabela_reservas.getSelectedRow();
-            if(linha != -1){
-                String id = tabela_reservas.getValueAt(linha,0).toString();
-                dispararAcaoAPI(id, "checkin");
-            }else {
-                JOptionPane.showMessageDialog(this, "Selecione uma reserva na tabela primeiro");
-            }
-        });
-
-        btn_checkout.addActionListener(e -> {
-            int linha = tabela_reservas.getSelectedRow();
-            if(linha != 1 ){
-                String id = tabela_reservas.getValueAt(linha, 0).toString();
-                dispararAcaoAPI(id, "checkout");
-            }else {
-                JOptionPane.showMessageDialog(this, "Selecione uma reserva na tabela primeiro");
-            }
-        });
-        carregarReservasDaAPI();
-    }
-    private void carregarReservasDaAPI(){
-        try{
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8080/api/reservas"))
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if(response.statusCode() == 200) {
-                String jsonResposta = response.body();
-                modeloTabela.setRowCount(0);
-
-                Gson gson = new Gson();
-
-                Type tipoLista = new TypeToken<List<ReservaDTO>>(){}.getType();
-                List<ReservaDTO> listaReservas = gson.fromJson(jsonResposta, tipoLista);
-
-                for(ReservaDTO r : listaReservas){
-                    modeloTabela.addRow(new Object[]{
-                            r.getId(),
-                            r.getRoom_id(),
-                            r.getCheckin_date(),
-                            r.getCheckout_date(),
-                            r.getStatuts(),
-                    });
+        btnCheckin.addActionListener(e -> {
+            int linha = tabelaReservas.getSelectedRow();
+            int coluna = tabelaReservas.getSelectedColumn();
+            if (linha != -1 && coluna > 0) {
+                Object val = tabelaReservas.getValueAt(linha, coluna);
+                if (val instanceof DsTimelineCell) {
+                    DsTimelineCell cell = (DsTimelineCell) val;
+                    String id = cell.getId();
+                    btnCheckin.setEnabled(false);
+                    controller.realizarAcao(id, ReservaAction.CHECKIN, 
+                        () -> mostrarMensagemSucesso("Ação 'check-in' realizada com sucesso!"),
+                        () -> btnCheckin.setEnabled(true)
+                    );
+                    return;
                 }
-            }else {
-                JOptionPane.showMessageDialog(this, "Erro ao buscar dados. Status: " + response.statusCode());
             }
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("Erro de conexão, Verifique se o Spring Boot esta rodando");
+            mostrarAviso("Selecione uma reserva válida na tabela primeiro", "Aviso");
+        });
+
+        btnCheckout.addActionListener(e -> {
+            int linha = tabelaReservas.getSelectedRow();
+            int coluna = tabelaReservas.getSelectedColumn();
+            if (linha != -1 && coluna > 0) {
+                Object val = tabelaReservas.getValueAt(linha, coluna);
+                if (val instanceof DsTimelineCell) {
+                    DsTimelineCell cell = (DsTimelineCell) val;
+                    String id = cell.getId();
+                    btnCheckout.setEnabled(false);
+                    controller.realizarAcao(id, ReservaAction.CHECKOUT,
+                        () -> mostrarMensagemSucesso("Ação 'check-out' realizada com sucesso!"),
+                        () -> btnCheckout.setEnabled(true)
+                    );
+                    return;
+                }
+            }
+            mostrarAviso("Selecione uma reserva válida na tabela primeiro", "Aviso");
+        });
+
+        controller.carregarReservas();
+    }
+
+    public void atualizarTabelaTimeline(List<QuartoDTO> quartos, List<LocalDate> datas, List<ReservaDTO> reservas) {
+        modeloTabela = new ReservaTimelineTableModel(quartos, datas, reservas);
+        tabelaReservas.setModel(modeloTabela);
+        
+        tabelaReservas.setDefaultRenderer(Object.class, new DsTimelineCellRenderer());
+        
+        if (tabelaReservas.getColumnModel().getColumnCount() > 0) {
+            tabelaReservas.getColumnModel().getColumn(0).setPreferredWidth(100);
+            tabelaReservas.getColumnModel().getColumn(0).setMinWidth(100);
         }
     }
-    private void dispararAcaoAPI(String id , String acao){
-        try{
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8080/api/reservas/" + id + "/" + acao))
-                    .POST(HttpRequest.BodyPublishers.noBody())
-                    .build();
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    public void mostrarMensagemSucesso(String mensagem) {
+        JOptionPane.showMessageDialog(this, mensagem);
+    }
 
-            if(response.statusCode() == 200 || response.statusCode() == 201){
-                JOptionPane.showMessageDialog(this, "Ação '" + acao + "' realizada com sucesso!");
-                carregarReservasDaAPI();
-            }else if(response.statusCode() == 400) {
-                JOptionPane.showMessageDialog(this, "BLoqueado pela Regra de Negocio: \n" + response.body(), "Aviso", JOptionPane.WARNING_MESSAGE);
-            }else{
-                JOptionPane.showMessageDialog(this, "Erro no servidor: " + response.statusCode());
-            }
-        }catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erro de rede ao tentar fazer " + acao);
-        }
+    public void mostrarMensagemErro(String mensagem, String titulo) {
+        JOptionPane.showMessageDialog(this, mensagem, titulo, JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void mostrarAviso(String mensagem, String titulo) {
+        JOptionPane.showMessageDialog(this, mensagem, titulo, JOptionPane.WARNING_MESSAGE);
     }
 }
