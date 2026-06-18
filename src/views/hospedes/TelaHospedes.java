@@ -1,4 +1,4 @@
-package main;
+package views.hospedes;
 
 import DTO.HospedesDTO;
 import components.DsButton;
