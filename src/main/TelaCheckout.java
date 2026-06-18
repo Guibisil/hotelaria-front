@@ -249,7 +249,7 @@ public class TelaCheckout {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 201 || response.statusCode() == 200) {
-                JOptionPane.showMessageDialog(null, "Check-in feito com sucesso!");
+                JOptionPane.showMessageDialog(null, "Check-out feito com sucesso!");
             } else {
                 System.out.println("Erro do Servidor (Body): " + response.body());
                 JOptionPane.showMessageDialog(null, "Falha ao fazer check-in. Status: " + response.statusCode());
