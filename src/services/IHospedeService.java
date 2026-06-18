@@ -6,4 +6,5 @@ import java.util.concurrent.CompletableFuture;
 
 public interface IHospedeService {
     CompletableFuture<List<HospedesDTO>> buscarHospedes();
+    CompletableFuture<Void> cadastrarHospede(HospedesDTO hospede);
 }

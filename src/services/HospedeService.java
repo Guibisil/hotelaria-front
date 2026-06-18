@@ -39,4 +39,26 @@ public class HospedeService implements IHospedeService {
                     }
                 });
     }
+
+    @Override
+    public CompletableFuture<Void> cadastrarHospede(HospedesDTO hospede) {
+        String json = gson.toJson(hospede);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_URL))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenAccept(response -> {
+                    int status = response.statusCode();
+                    if (status == 200 || status == 201) {
+                        return; // Sucesso
+                    } else if (status == 400) {
+                        throw new services.ReservaService.BusinessRuleException(response.body());
+                    } else {
+                        throw new RuntimeException("Erro no servidor. Código: " + status);
+                    }
+                });
+    }
 }
