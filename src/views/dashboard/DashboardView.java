@@ -1,96 +1,147 @@
 package views.dashboard;
 
+import DTO.ReservaDTO;
+import components.DsButton;
+import components.DsLabel;
+import components.DsTitleLabel;
+import components.DsDialog;
+import controllers.DashboardController;
+import theme.DesignTokens.ColorPalette;
+import theme.DesignTokens.Spacing;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.util.List;
 
 public class DashboardView extends JPanel {
 
-    private final Checks check = new Checks();
+    private final DashboardController controller;
+    private JPanel jpCheckInList;
+    private JPanel jpCheckOutList;
 
-    public DashboardView() {
+    public DashboardView(DashboardController controller) {
+        this.controller = controller;
+        this.setLayout(new BorderLayout());
+        this.setBackground(ColorPalette.BACKGROUND);
         renderDashboard();
+        carregarDados();
     }
 
-    public void renderDashboard () {  
-        JLabel titulo = new JLabel("Página Inicial");
-        titulo.setFont(new Font("Arial", Font.BOLD, 18));    
+    private void renderDashboard() {
+        JPanel jpTopo = new JPanel(new BorderLayout());
+        jpTopo.setBackground(ColorPalette.BACKGROUND);
+        jpTopo.setBorder(BorderFactory.createEmptyBorder(Spacing.MD, Spacing.MD, Spacing.MD, Spacing.MD));
+        DsTitleLabel titulo = new DsTitleLabel("Página Inicial");
+        jpTopo.add(titulo, BorderLayout.WEST);
 
-        JPanel jpCheckIn = new JPanel();
+        JPanel jpMain = new JPanel(new GridLayout(2, 1, Spacing.MD, Spacing.MD));
+        jpMain.setBackground(ColorPalette.BACKGROUND);
+        jpMain.setBorder(BorderFactory.createEmptyBorder(Spacing.MD, Spacing.MD, Spacing.MD, Spacing.MD));
 
-        ActionListener btnListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                check.showPaymentModal();
+        // Painel Check-ins
+        JPanel jpCheckIn = new JPanel(new BorderLayout(Spacing.SM, Spacing.SM));
+        jpCheckIn.setBackground(ColorPalette.BACKGROUND);
+        DsTitleLabel lblCheckin = new DsTitleLabel("Check-ins do dia");
+        jpCheckIn.add(lblCheckin, BorderLayout.NORTH);
+
+        jpCheckInList = new JPanel(new FlowLayout(FlowLayout.LEFT, Spacing.MD, Spacing.MD));
+        jpCheckInList.setBackground(ColorPalette.BACKGROUND);
+        JScrollPane scrollCheckin = new JScrollPane(jpCheckInList);
+        scrollCheckin.setBorder(BorderFactory.createEmptyBorder());
+        jpCheckIn.add(scrollCheckin, BorderLayout.CENTER);
+
+        // Painel Check-outs
+        JPanel jpCheckOut = new JPanel(new BorderLayout(Spacing.SM, Spacing.SM));
+        jpCheckOut.setBackground(ColorPalette.BACKGROUND);
+        DsTitleLabel lblCheckout = new DsTitleLabel("Check-outs do dia");
+        jpCheckOut.add(lblCheckout, BorderLayout.NORTH);
+
+        jpCheckOutList = new JPanel(new FlowLayout(FlowLayout.LEFT, Spacing.MD, Spacing.MD));
+        jpCheckOutList.setBackground(ColorPalette.BACKGROUND);
+        JScrollPane scrollCheckout = new JScrollPane(jpCheckOutList);
+        scrollCheckout.setBorder(BorderFactory.createEmptyBorder());
+        jpCheckOut.add(scrollCheckout, BorderLayout.CENTER);
+
+        jpMain.add(jpCheckIn);
+        jpMain.add(jpCheckOut);
+
+        this.add(jpTopo, BorderLayout.NORTH);
+        this.add(jpMain, BorderLayout.CENTER);
+    }
+
+    private void carregarDados() {
+        controller.carregarDadosDashboard().thenAccept(data -> SwingUtilities.invokeLater(() -> {
+            List<ReservaDTO> checkins = controller.getCheckinsDoDia(data);
+            List<ReservaDTO> checkouts = controller.getCheckoutsDoDia(data);
+
+            jpCheckInList.removeAll();
+            if (checkins.isEmpty()) {
+                jpCheckInList.add(new DsLabel("Nenhum check-in programado para hoje."));
+            } else {
+                for (ReservaDTO r : checkins) {
+                    jpCheckInList.add(criarCard(r, true));
+                }
             }
-        };
 
-        String[] nomes = {"Anna", "Claudio", "Brenda"};
-        String[] ids =  {"12", "32", "4"};
+            jpCheckOutList.removeAll();
+            if (checkouts.isEmpty()) {
+                jpCheckOutList.add(new DsLabel("Nenhum check-out programado para hoje."));
+            } else {
+                for (ReservaDTO r : checkouts) {
+                    jpCheckOutList.add(criarCard(r, false));
+                }
+            }
 
-        jpCheckIn.setLayout(new BorderLayout(0, 15));
-        jpCheckIn.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        jpCheckIn.add(new JLabel("Check-ins"), BorderLayout.NORTH);
-        jpCheckIn.add(buildListCards(ids, nomes, btnListener, "Check-in"), BorderLayout.CENTER);
-
-        JPanel jpCheckOut = new JPanel();
-
-        String[] nomes1 = {"Beta", "Dunga", "Murilo"};
-        String[] ids1 =  {"43", "2", "34"};
-
-        jpCheckOut.setLayout(new BorderLayout(0, 15));
-        jpCheckOut.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        jpCheckOut.add(new JLabel("Check-outs"), BorderLayout.NORTH);
-        jpCheckOut.add(buildListCards(ids1, nomes1, btnListener, "Check-out"), BorderLayout.CENTER);
-
-        setupLayout(titulo, jpCheckOut, jpCheckIn);
+            jpCheckInList.revalidate();
+            jpCheckInList.repaint();
+            jpCheckOutList.revalidate();
+            jpCheckOutList.repaint();
+        })).exceptionally(ex -> {
+            SwingUtilities.invokeLater(() -> {
+                ex.printStackTrace();
+                DsDialog.showError(this, "Erro ao carregar dados do dashboard.", "Erro");
+            });
+            return null;
+        });
     }
 
-    public JPanel buildListCards (String[] ids, String[] nomes, ActionListener btnListener, String check) {
-        JPanel jpCardHospedes = new JPanel();
+    private JPanel criarCard(ReservaDTO reserva, boolean isCheckin) {
+        JPanel card = new JPanel(new BorderLayout(Spacing.SM, Spacing.SM));
+        card.setBackground(ColorPalette.SURFACE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ColorPalette.BORDER_VARIANT),
+                BorderFactory.createEmptyBorder(Spacing.MD, Spacing.MD, Spacing.MD, Spacing.MD)
+        ));
 
-        for (int i = 0; i < nomes.length; i++) {
-            JLabel lblNome = new JLabel(nomes[i]);
-            JButton btnAcao = new JButton(check);
-            btnAcao.setActionCommand(ids[i]);
-            btnAcao.addActionListener(btnListener);
+        JPanel info = new JPanel(new GridLayout(2, 1));
+        info.setBackground(ColorPalette.SURFACE);
+        String nome = reserva.getGuestName() != null ? reserva.getGuestName() : "Hóspede Desconhecido";
+        String quarto = reserva.getRoomNumber() != null ? reserva.getRoomNumber() : "N/A";
+        
+        DsLabel lblNome = new DsLabel(nome);
+        lblNome.setFont(theme.DesignTokens.Typography.TITLE_FONT.deriveFont(16f));
+        info.add(lblNome);
+        
+        DsLabel lblQuarto = new DsLabel("Quarto: " + quarto);
+        lblQuarto.setForeground(ColorPalette.TEXT_SECONDARY);
+        info.add(lblQuarto);
 
-            jpCardHospedes.add(lblNome);
-            jpCardHospedes.add(btnAcao);
-        }    
+        card.add(info, BorderLayout.CENTER);
 
-        jpCardHospedes.setLayout(new GridLayout(0, 4, 10, 10));
-        return jpCardHospedes;
-    } 
+        String btnLabel = isCheckin ? "Realizar Check-in" : "Realizar Check-out";
+        DsButton btnAcao = new DsButton(btnLabel, isCheckin ? DsButton.ButtonType.PRIMARY : DsButton.ButtonType.DANGER);
 
-    public void setupLayout(JLabel titulo, JPanel jpCheckIn, JPanel jpCheckOut) {
-        this.setLayout(new GridBagLayout());
-        this.setBackground(Color.WHITE);
-        this.add(titulo);
+        btnAcao.addActionListener(e -> {
+            if (isCheckin) {
+                new ModalCheckin(controller, reserva, this::carregarDados).setVisible(true);
+            } else {
+                new ModalCheckout(controller, reserva, this::carregarDados).setVisible(true);
+            }
+        });
 
-        GridBagConstraints gbc = new GridBagConstraints();
+        card.add(btnAcao, BorderLayout.SOUTH);
+        card.setPreferredSize(new Dimension(200, 120));
 
-        gbc.gridx = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 5, 5, 5);
-
-        gbc.gridy = 0;
-        gbc.weighty = 0;
-        this.add(titulo, gbc);
-
-        gbc.gridy = 2;
-        gbc.weighty = 0;
-        this.add(jpCheckIn, gbc);
-
-        gbc.gridy = 1;
-        gbc.weighty = 0;
-        this.add(jpCheckOut, gbc);
-
-        gbc.gridy = 3;
-        gbc.weighty = 1.0;
-        this.add(Box.createVerticalGlue(), gbc);
-
+        return card;
     }
-
 }
