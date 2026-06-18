@@ -1,6 +1,6 @@
 package main;
 
-import DTO.HospedesDTO;
+import DTO.HospedeDTO;
 import DTO.QuartoDTO;
 import DTO.ReservaDTO;
 import com.google.gson.Gson;
@@ -26,8 +26,8 @@ public class TelaCheckout {
     private float valor;
 
     public TelaCheckout(String id_guest, String id_room) {
-        nova_reserva.setGuest_id(Integer.parseInt(id_guest));
-        nova_reserva.setRoom_id(Integer.parseInt(id_room));
+        nova_reserva.setGuestId(Long.parseLong(id_guest));
+        nova_reserva.setRoomId(Integer.parseInt(id_room));
 
         JFrame jf_janela_check = new JFrame();
         JPanel jp_valor = new JPanel(new GridLayout(1, 2, 10, 10));
@@ -135,10 +135,10 @@ public class TelaCheckout {
 
                 Gson gson = new Gson();
 
-                Type tipoLista = new TypeToken<java.util.List<HospedesDTO>>(){}.getType();
-                List<HospedesDTO> ListaHospedes = gson.fromJson(json_reservas, tipoLista);
+                Type tipoLista = new TypeToken<java.util.List<HospedeDTO>>(){}.getType();
+                List<HospedeDTO> ListaHospedes = gson.fromJson(json_reservas, tipoLista);
 
-                for(HospedesDTO r : ListaHospedes) {
+                for(HospedeDTO r : ListaHospedes) {
                     String id_hospede = String.valueOf(r.getId());
                     if (id_guest.equals(id_hospede)){
                         return r.getName();
@@ -179,15 +179,15 @@ public class TelaCheckout {
                 List<ReservaDTO> ListaReseva = gson.fromJson(json_reservas, tipoLista);
 
                 for(ReservaDTO r : ListaReseva){
-                    String id_hospede = String.valueOf(r.getGuest_id());
+                    String id_hospede = String.valueOf(r.getGuestId());
 
                     if (id_guest.equals(id_hospede)) {
-                        jl_data_check_out.setText(r.getCheckout_date());
-                        nova_reserva.setCheckin_date(r.getCheckin_date());
-                        nova_reserva.setCheckout_date(r.getCheckout_date());
-                        nova_reserva.setTotal_amount(r.getTotal_amount());
+                        jl_data_check_out.setText(r.getCheckoutDate());
+                        nova_reserva.setCheckinDate(r.getCheckinDate());
+                        nova_reserva.setCheckoutDate(r.getCheckoutDate());
+                        nova_reserva.setTotalAmount(r.getTotalAmount());
                         id_reserva = r.getId();
-                        valor = r.getTotal_amount();
+                        valor = r.getTotalAmount() != null ? r.getTotalAmount().floatValue() : 0f;
                         jl_valor.setText(String.valueOf(valor));
                     }
                 }
