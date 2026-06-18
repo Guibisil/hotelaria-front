@@ -13,6 +13,9 @@ public class QuartoDTO {
     
     @SerializedName("bed_count")
     private int bedCount;
+    
+    @SerializedName("base_daily_rate")
+    private double baseDailyRate;
 
     public Long getId() {
         return id;
@@ -44,5 +47,13 @@ public class QuartoDTO {
 
     public void setBedCount(int bedCount) {
         this.bedCount = bedCount;
+    }
+
+    public double getBaseDailyRate() {
+        return baseDailyRate;
+    }
+
+    public void setBaseDailyRate(double baseDailyRate) {
+        this.baseDailyRate = baseDailyRate;
     }
 }
