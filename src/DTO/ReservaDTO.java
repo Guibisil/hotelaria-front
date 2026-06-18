@@ -20,6 +20,9 @@ public class ReservaDTO {
     @SerializedName("checkout_date")
     private String checkoutDate;
     
+    @SerializedName("total_amount")
+    private Double totalAmount;
+    
     private String status;
 
     public Long getId() {
@@ -76,5 +79,13 @@ public class ReservaDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(Double totalAmount) {
+        this.totalAmount = totalAmount;
     }
 }
