@@ -11,7 +11,7 @@ import components.DsTitleLabel;
 import components.DsDialog;
 import controllers.ReservaController;
 import controllers.NovaReservaController;
-import enums.ReservaAction;
+
 import models.ui.ReservaTimelineTableModel;
 import theme.DesignTokens.ColorPalette;
 import theme.DesignTokens.Spacing;
@@ -65,84 +65,10 @@ public class TelaReservas extends JPanel {
         jpTabela.setBorder(BorderFactory.createEmptyBorder(0, Spacing.MD, 0, Spacing.MD));
         jpTabela.getViewport().setBackground(ColorPalette.BACKGROUND);
 
-        JPanel jpAcoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, Spacing.MD, Spacing.MD));
-        jpAcoes.setBackground(ColorPalette.BACKGROUND);
-
-        DsButton btnCheckin = new DsButton("Fazer check-in", ButtonType.SECONDARY);
-        DsButton btnCheckout = new DsButton("Fazer checkout", ButtonType.DANGER);
-
-        jpAcoes.add(btnCheckin);
-        jpAcoes.add(btnCheckout);
-
         this.add(jpTopo, BorderLayout.NORTH);
-        this.add(jpAcoes, BorderLayout.SOUTH);
         this.add(jpTabela, BorderLayout.CENTER);
 
-        btnCheckin.addActionListener(e -> {
-            int linha = tabelaReservas.getSelectedRow();
-            int coluna = tabelaReservas.getSelectedColumn();
-            if (linha != -1 && coluna > 0) {
-                Object val = tabelaReservas.getValueAt(linha, coluna);
-                if (val instanceof DsTimelineCell) {
-                    DsTimelineCell cell = (DsTimelineCell) val;
-                    String id = cell.getId();
-                    btnCheckin.setEnabled(false);
-                    controller.realizarAcao(id, ReservaAction.CHECKIN)
-                        .thenRun(() -> SwingUtilities.invokeLater(() -> {
-                            DsDialog.showSuccess(this, "Ação 'check-in' realizada com sucesso!");
-                            btnCheckin.setEnabled(true);
-                            carregarReservas();
-                        }))
-                        .exceptionally(ex -> {
-                            SwingUtilities.invokeLater(() -> {
-                                btnCheckin.setEnabled(true);
-                                String msg = controller.extrairMensagemErro(ex);
-                                if (controller.isBusinessRuleException(ex)) {
-                                    DsDialog.showWarning(this, msg, "Aviso");
-                                } else {
-                                    DsDialog.showError(this, msg, "Erro");
-                                }
-                            });
-                            return null;
-                        });
-                    return;
-                }
-            }
-            DsDialog.showWarning(this, "Selecione uma reserva válida na tabela primeiro", "Aviso");
-        });
 
-        btnCheckout.addActionListener(e -> {
-            int linha = tabelaReservas.getSelectedRow();
-            int coluna = tabelaReservas.getSelectedColumn();
-            if (linha != -1 && coluna > 0) {
-                Object val = tabelaReservas.getValueAt(linha, coluna);
-                if (val instanceof DsTimelineCell) {
-                    DsTimelineCell cell = (DsTimelineCell) val;
-                    String id = cell.getId();
-                    btnCheckout.setEnabled(false);
-                    controller.realizarAcao(id, ReservaAction.CHECKOUT)
-                        .thenRun(() -> SwingUtilities.invokeLater(() -> {
-                            DsDialog.showSuccess(this, "Ação 'check-out' realizada com sucesso!");
-                            btnCheckout.setEnabled(true);
-                            carregarReservas();
-                        }))
-                        .exceptionally(ex -> {
-                            SwingUtilities.invokeLater(() -> {
-                                btnCheckout.setEnabled(true);
-                                String msg = controller.extrairMensagemErro(ex);
-                                if (controller.isBusinessRuleException(ex)) {
-                                    DsDialog.showWarning(this, msg, "Aviso");
-                                } else {
-                                    DsDialog.showError(this, msg, "Erro");
-                                }
-                            });
-                            return null;
-                        });
-                    return;
-                }
-            }
-            DsDialog.showWarning(this, "Selecione uma reserva válida na tabela primeiro", "Aviso");
-        });
     }
 
     public void setController(ReservaController controller) {
