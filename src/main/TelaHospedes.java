@@ -1,103 +1,90 @@
 package main;
 
 import DTO.HospedesDTO;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import components.DsButton;
+import components.DsTitleLabel;
+import controllers.HospedeController;
+import theme.DesignTokens.ColorPalette;
+import theme.DesignTokens.Spacing;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.List;
-
-import javax.swing.*;
 
 public class TelaHospedes extends JPanel {
 
     private DefaultTableModel modeloTabela;
-    private JTable tabela_reservas;
+    private JTable tabelaHospedes;
+    private HospedeController controller;
 
     public TelaHospedes() {
         this.setLayout(new BorderLayout());
+        this.setBackground(ColorPalette.BACKGROUND);
 
-        JPanel jp_topo = new JPanel((new BorderLayout()));
-        jp_topo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel jpTopo = new JPanel(new BorderLayout());
+        jpTopo.setBackground(ColorPalette.BACKGROUND);
+        jpTopo.setBorder(BorderFactory.createEmptyBorder(Spacing.MD, Spacing.MD, Spacing.MD, Spacing.MD));
 
-        JLabel jl_titulo = new JLabel("Gerenciamento de Reservas");
-        jl_titulo.setFont(new Font("Arial", Font.BOLD, 20));
+        DsTitleLabel jlTitulo = new DsTitleLabel("Gerenciamento de Hóspedes");
 
-        JButton btn_nova_reserva = new JButton("Novo Hóspede");
-        btn_nova_reserva.setBackground(new Color(40, 167, 69));
-        btn_nova_reserva.setForeground(Color.WHITE);
+        DsButton btnNovoHospede = new DsButton("Novo Hóspede", DsButton.ButtonType.PRIMARY);
 
-        btn_nova_reserva.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                TelaNovoHospede novo_hopede = new TelaNovoHospede();
-            }
+        btnNovoHospede.addActionListener(e -> {
+            TelaNovoHospede telaNovo = new TelaNovoHospede(controller);
+            telaNovo.setVisible(true);
         });
 
-        jp_topo.add(jl_titulo, BorderLayout.WEST);
-        jp_topo.add(btn_nova_reserva, BorderLayout.EAST);
+        jpTopo.add(jlTitulo, BorderLayout.WEST);
+        jpTopo.add(btnNovoHospede, BorderLayout.EAST);
 
         String[] colunas = {"Nome", "CPF", "Email", "Data de Nascimento"};
 
-        modeloTabela = new DefaultTableModel(colunas, 0);
-        tabela_reservas = new JTable((modeloTabela));
-        tabela_reservas.setRowHeight(25);
+        modeloTabela = new DefaultTableModel(colunas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        
+        tabelaHospedes = new JTable(modeloTabela);
+        tabelaHospedes.setRowHeight(40);
+        tabelaHospedes.setIntercellSpacing(new Dimension(0, 0));
+        tabelaHospedes.setShowVerticalLines(false);
+        tabelaHospedes.setSelectionBackground(ColorPalette.PRIMARY.brighter());
+        tabelaHospedes.setSelectionForeground(ColorPalette.TEXT_PRIMARY);
+        tabelaHospedes.setFont(theme.DesignTokens.Typography.BODY_FONT);
 
-        JScrollPane jp_tabela = new JScrollPane(tabela_reservas);
-        jp_tabela.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        JScrollPane jpTabela = new JScrollPane(tabelaHospedes);
+        jpTabela.setBorder(BorderFactory.createEmptyBorder(0, Spacing.MD, 0, Spacing.MD));
+        jpTabela.getViewport().setBackground(ColorPalette.BACKGROUND);
 
-        JPanel jp_acoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JPanel jpAcoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, Spacing.MD, Spacing.MD));
+        jpAcoes.setBackground(ColorPalette.BACKGROUND);
 
-        this.add(jp_topo, BorderLayout.NORTH);
-        this.add(jp_acoes, BorderLayout.SOUTH);
-        this.add(jp_tabela, BorderLayout.CENTER);
-
-        carregar_hospedes_api();
+        this.add(jpTopo, BorderLayout.NORTH);
+        this.add(jpAcoes, BorderLayout.SOUTH);
+        this.add(jpTabela, BorderLayout.CENTER);
     }
 
-    private void carregar_hospedes_api() {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8080/api/guests"))
-                    .GET()
-                    .build();
+    public void setController(HospedeController controller) {
+        this.controller = controller;
+        this.controller.carregarHospedes();
+    }
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                String jsonResposta = response.body();
-                modeloTabela.setRowCount(0);
-
-                Gson gson = new Gson();
-
-                Type tipoLista = new TypeToken<List<HospedesDTO>>() {
-                }.getType();
-                List<HospedesDTO> listaHospedes = gson.fromJson(jsonResposta, tipoLista);
-
-                for (HospedesDTO r : listaHospedes) {
-                    modeloTabela.addRow(new Object[]{
-                            r.getName(),
-                            r.getCpf(),
-                            r.getEmail(),
-                            r.getBirth_date(),
-                    });
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Erro ao buscar dados. Status: " + response.statusCode());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Erro de conexão, verifique se o Spring Boot esta rodando");
+    public void atualizarTabela(List<HospedesDTO> listaHospedes) {
+        modeloTabela.setRowCount(0);
+        for (HospedesDTO r : listaHospedes) {
+            modeloTabela.addRow(new Object[]{
+                    r.getName(),
+                    r.getCpf(),
+                    r.getEmail(),
+                    r.getBirth_date(),
+            });
         }
+    }
+
+    public void mostrarMensagemErro(String mensagem, String titulo) {
+        JOptionPane.showMessageDialog(this, mensagem, titulo, JOptionPane.ERROR_MESSAGE);
     }
 }
