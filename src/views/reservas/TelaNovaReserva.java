@@ -370,7 +370,7 @@ public class TelaNovaReserva extends DsModal {
 
         painel.add(new DsTitleLabel("Passo 3: Selecione o quarto"), BorderLayout.NORTH);
 
-        modeloQuartos = new DefaultTableModel(new Object[]{"ID", "Número", "Camas", "Status", "Diária"}, 0) {
+        modeloQuartos = new DefaultTableModel(new Object[]{"Número", "Camas", "Status", "Diária"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -400,8 +400,8 @@ public class TelaNovaReserva extends DsModal {
                         LocalDate saida = LocalDate.parse(txtDataSaida.getText(), fmt);
                         long dias = ChronoUnit.DAYS.between(entrada, saida);
                         
-                        Long selectedId = (Long) modeloQuartos.getValueAt(row, 0);
-                        QuartoDTO q = quartosDisponiveisCache.stream().filter(quarto -> quarto.getId().equals(selectedId)).findFirst().orElse(null);
+                        String selectedNumber = (String) modeloQuartos.getValueAt(row, 0);
+                        QuartoDTO q = quartosDisponiveisCache.stream().filter(quarto -> quarto.getNumber().equals(selectedNumber)).findFirst().orElse(null);
                         
                         if (q != null) {
                             quartoSelecionadoDiaria = q.getBaseDailyRate();
@@ -473,9 +473,12 @@ public class TelaNovaReserva extends DsModal {
                 DsDialog.showWarning(this, "Selecione um quarto.", "Aviso");
                 return false;
             }
-            Long id = (Long) modeloQuartos.getValueAt(row, 0);
-            quartoSelecionadoId = id.intValue();
-            quartoSelecionadoNome = (String) modeloQuartos.getValueAt(row, 1);
+            String selectedNumber = (String) modeloQuartos.getValueAt(row, 0);
+            QuartoDTO q = quartosDisponiveisCache.stream().filter(quarto -> quarto.getNumber().equals(selectedNumber)).findFirst().orElse(null);
+            if (q != null) {
+                quartoSelecionadoId = q.getId().intValue();
+                quartoSelecionadoNome = q.getNumber();
+            }
         }
         return true;
     }
@@ -538,7 +541,7 @@ public class TelaNovaReserva extends DsModal {
             quartosDisponiveisCache = quartos;
             modeloQuartos.setRowCount(0);
             for (QuartoDTO q : quartos) {
-                modeloQuartos.addRow(new Object[]{q.getId(), q.getNumber(), q.getBedCount(), "AVAILABLE", String.format("R$ %.2f", q.getBaseDailyRate())});
+                modeloQuartos.addRow(new Object[]{q.getNumber(), q.getBedCount(), "AVAILABLE", String.format("R$ %.2f", q.getBaseDailyRate())});
             }
             if (quartos.isEmpty()) {
                 // Warning optional, handled by empty table
