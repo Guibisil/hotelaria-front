@@ -27,13 +27,13 @@ public class TelaHospedes extends JPanel {
         this.setLayout(new BorderLayout());
 
         JPanel jp_topo = new JPanel((new BorderLayout()));
-        jp_topo.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        jp_topo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JLabel jl_titulo = new JLabel("Gerenciamento de Reservas");
         jl_titulo.setFont(new Font("Arial", Font.BOLD, 20));
 
         JButton btn_nova_reserva = new JButton("Novo Hóspede");
-        btn_nova_reserva.setBackground(new Color(40,167, 69));
+        btn_nova_reserva.setBackground(new Color(40, 167, 69));
         btn_nova_reserva.setForeground(Color.WHITE);
 
         btn_nova_reserva.addActionListener(new ActionListener() {
@@ -55,7 +55,7 @@ public class TelaHospedes extends JPanel {
         JScrollPane jp_tabela = new JScrollPane(tabela_reservas);
         jp_tabela.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
-        JPanel jp_acoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10,10));
+        JPanel jp_acoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
 
         this.add(jp_topo, BorderLayout.NORTH);
         this.add(jp_acoes, BorderLayout.SOUTH);
@@ -64,8 +64,8 @@ public class TelaHospedes extends JPanel {
         carregar_hospedes_api();
     }
 
-    private void carregar_hospedes_api(){
-        try{
+    private void carregar_hospedes_api() {
+        try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:8080/api/guests"))
@@ -74,16 +74,17 @@ public class TelaHospedes extends JPanel {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            if(response.statusCode() == 200) {
+            if (response.statusCode() == 200) {
                 String jsonResposta = response.body();
                 modeloTabela.setRowCount(0);
 
                 Gson gson = new Gson();
 
-                Type tipoLista = new TypeToken<List<HospedesDTO>>(){}.getType();
+                Type tipoLista = new TypeToken<List<HospedesDTO>>() {
+                }.getType();
                 List<HospedesDTO> listaHospedes = gson.fromJson(jsonResposta, tipoLista);
 
-                for(HospedesDTO r : listaHospedes){
+                for (HospedesDTO r : listaHospedes) {
                     modeloTabela.addRow(new Object[]{
                             r.getName(),
                             r.getCpf(),
@@ -91,38 +92,12 @@ public class TelaHospedes extends JPanel {
                             r.getBirth_date(),
                     });
                 }
-            }else {
+            } else {
                 JOptionPane.showMessageDialog(this, "Erro ao buscar dados. Status: " + response.statusCode());
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Erro de conexão, Verifique se o Spring Boot esta rodando");
+            System.out.println("Erro de conexão, verifique se o Spring Boot esta rodando");
         }
     }
-
-    private void dispararAcaoAPI(String id , String acao) {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8080/api/reservas/" + id + "/" + acao))
-                    .POST(HttpRequest.BodyPublishers.noBody())
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200 || response.statusCode() == 201) {
-                JOptionPane.showMessageDialog(this, "Ação '" + acao + "' realizada com sucesso!");
-                carregar_hospedes_api();
-            } else if (response.statusCode() == 400) {
-                JOptionPane.showMessageDialog(this, "BLoqueado pela Regra de Negocio: \n" + response.body(), "Aviso", JOptionPane.WARNING_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "Erro no servidor: " + response.statusCode());
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erro de rede ao tentar fazer " + acao);
-        }
-    }
-
-
 }
