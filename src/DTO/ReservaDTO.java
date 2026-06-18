@@ -3,28 +3,28 @@ package DTO;
 public class ReservaDTO {
 
     private Long id;
-    private int roomId;
-    private String expectedCheckInDate;
-    private String expectedCheckOutDate;
+    private int room_id;
+    private String checkin_date;
+    private String checkout_date;
     private String statuts;
 
     public Long getId() {
         return id;
     }
 
-    public int getRoomId() {
-        return roomId;
-    }
-
-    public String getExpectedCheckInDate() {
-        return expectedCheckInDate;
-    }
-
-    public String getExpectedCheckOutDate() {
-        return expectedCheckOutDate;
+    public int getRoom_id() {
+        return room_id;
     }
 
     public String getStatuts() {
         return statuts;
+    }
+
+    public String getCheckout_date() {
+        return checkout_date;
+    }
+
+    public String getCheckin_date() {
+        return checkin_date;
     }
 }

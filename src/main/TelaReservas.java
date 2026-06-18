@@ -105,9 +105,9 @@ public class TelaReservas extends JPanel {
                 for(ReservaDTO r : listaReservas){
                     modeloTabela.addRow(new Object[]{
                             r.getId(),
-                            r.getRoomId(),
-                            r.getExpectedCheckInDate(),
-                            r.getExpectedCheckOutDate(),
+                            r.getRoom_id(),
+                            r.getCheckin_date(),
+                            r.getCheckout_date(),
                             r.getStatuts(),
                     });
                 }

@@ -1,12 +1,14 @@
 package main;
 
-import DTO.ReservaDTO;
+import DTO.HospedesDTO;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -34,6 +36,13 @@ public class TelaHospedes extends JPanel {
         btn_nova_reserva.setBackground(new Color(40,167, 69));
         btn_nova_reserva.setForeground(Color.WHITE);
 
+        btn_nova_reserva.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TelaNovoHospede novo_hopede = new TelaNovoHospede();
+            }
+        });
+
         jp_topo.add(jl_titulo, BorderLayout.WEST);
         jp_topo.add(btn_nova_reserva, BorderLayout.EAST);
 
@@ -52,14 +61,14 @@ public class TelaHospedes extends JPanel {
         this.add(jp_acoes, BorderLayout.SOUTH);
         this.add(jp_tabela, BorderLayout.CENTER);
 
-        carregarReservasDaAPI();
+        carregar_hospedes_api();
     }
 
-    private void carregarReservasDaAPI(){
+    private void carregar_hospedes_api(){
         try{
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8080/api/reservas"))
+                    .uri(URI.create("http://localhost:8080/api/guests"))
                     .GET()
                     .build();
 
@@ -71,16 +80,15 @@ public class TelaHospedes extends JPanel {
 
                 Gson gson = new Gson();
 
-                Type tipoLista = new TypeToken<List<ReservaDTO>>(){}.getType();
-                List<ReservaDTO> listaReservas = gson.fromJson(jsonResposta, tipoLista);
+                Type tipoLista = new TypeToken<List<HospedesDTO>>(){}.getType();
+                List<HospedesDTO> listaHospedes = gson.fromJson(jsonResposta, tipoLista);
 
-                for(ReservaDTO r : listaReservas){
+                for(HospedesDTO r : listaHospedes){
                     modeloTabela.addRow(new Object[]{
-                            r.getId(),
-                            r.getRoomId(),
-                            r.getExpectedCheckInDate(),
-                            r.getExpectedCheckOutDate(),
-                            r.getStatuts(),
+                            r.getName(),
+                            r.getCpf(),
+                            r.getEmail(),
+                            r.getBirth_date(),
                     });
                 }
             }else {
@@ -104,7 +112,7 @@ public class TelaHospedes extends JPanel {
 
             if (response.statusCode() == 200 || response.statusCode() == 201) {
                 JOptionPane.showMessageDialog(this, "Ação '" + acao + "' realizada com sucesso!");
-                carregarReservasDaAPI();
+                carregar_hospedes_api();
             } else if (response.statusCode() == 400) {
                 JOptionPane.showMessageDialog(this, "BLoqueado pela Regra de Negocio: \n" + response.body(), "Aviso", JOptionPane.WARNING_MESSAGE);
             } else {
