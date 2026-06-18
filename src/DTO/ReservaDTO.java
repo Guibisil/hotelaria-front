@@ -6,6 +6,11 @@ public class ReservaDTO {
 
     private Long id;
     
+    @SerializedName("guest_id")
+    private Long guestId;
+    
+    private transient String guestName;
+    
     @SerializedName("room_id")
     private int roomId;
     
@@ -23,6 +28,22 @@ public class ReservaDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getGuestId() {
+        return guestId;
+    }
+
+    public void setGuestId(Long guestId) {
+        this.guestId = guestId;
+    }
+
+    public String getGuestName() {
+        return guestName;
+    }
+
+    public void setGuestName(String guestName) {
+        this.guestName = guestName;
     }
 
     public int getRoomId() {
