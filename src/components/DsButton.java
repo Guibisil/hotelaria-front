@@ -1,21 +1,26 @@
 package components;
 
+import theme.DesignTokens.ColorPalette;
+import theme.DesignTokens.Typography;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class DsButton extends JButton {
 
     public enum ButtonType {
-        PRIMARY(new Color(40, 167, 69), Color.WHITE),
-        SECONDARY(new Color(0, 123, 255), Color.WHITE),
-        DANGER(new Color(220, 53, 69), Color.WHITE);
+        PRIMARY(ColorPalette.PRIMARY, ColorPalette.ON_PRIMARY, ColorPalette.PRIMARY_HOVER),
+        SECONDARY(ColorPalette.SECONDARY, ColorPalette.ON_SECONDARY, ColorPalette.SECONDARY_HOVER),
+        DANGER(ColorPalette.DANGER, ColorPalette.ON_DANGER, ColorPalette.DANGER_HOVER);
 
         private final Color backgroundColor;
         private final Color foregroundColor;
+        private final Color hoverColor;
 
-        ButtonType(Color backgroundColor, Color foregroundColor) {
+        ButtonType(Color backgroundColor, Color foregroundColor, Color hoverColor) {
             this.backgroundColor = backgroundColor;
             this.foregroundColor = foregroundColor;
+            this.hoverColor = hoverColor;
         }
 
         public Color getBackgroundColor() {
@@ -24,6 +29,10 @@ public class DsButton extends JButton {
 
         public Color getForegroundColor() {
             return foregroundColor;
+        }
+        
+        public Color getHoverColor() {
+            return hoverColor;
         }
     }
 
@@ -34,13 +43,14 @@ public class DsButton extends JButton {
         setBackground(type.getBackgroundColor());
         setForeground(type.getForegroundColor());
         setFocusPainted(false);
-        setFont(new Font("Arial", Font.BOLD, 12));
+        setFont(Typography.BUTTON_FONT);
+        setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16)); // Added padding for better M3 look
         
         // Micro-animação de hover (efeito visual interativo)
         addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                setBackground(type.getBackgroundColor().brighter());
+                setBackground(type.getHoverColor());
             }
 
             @Override
