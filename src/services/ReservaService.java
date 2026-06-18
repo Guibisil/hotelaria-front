@@ -70,6 +70,31 @@ public class ReservaService implements IReservaService {
     }
 
     /**
+     * Cria uma nova reserva de forma assíncrona na API.
+     */
+    @Override
+    public CompletableFuture<Void> criarReserva(ReservaDTO reserva) {
+        String jsonPayload = gson.toJson(reserva);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(RESERVATIONS_URL))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                .build();
+
+        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenAccept(response -> {
+                    int status = response.statusCode();
+                    if (status == 200 || status == 201) {
+                        return; // Sucesso
+                    } else if (status == 400) {
+                        throw new BusinessRuleException(response.body());
+                    } else {
+                        throw new RuntimeException("Erro no servidor. Código: " + status);
+                    }
+                });
+    }
+
+    /**
      * Exceção customizada para encapsular erros de regra de negócio HTTP 400.
      */
     public static class BusinessRuleException extends RuntimeException {
