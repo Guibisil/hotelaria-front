@@ -6,7 +6,7 @@ public class ReservaDTO {
     private int room_id;
     private String checkin_date;
     private String checkout_date;
-    private String statuts;
+    private String status;
 
     public Long getId() {
         return id;
@@ -16,8 +16,8 @@ public class ReservaDTO {
         return room_id;
     }
 
-    public String getStatuts() {
-        return statuts;
+    public String getStatus() {
+        return status;
     }
 
     public String getCheckout_date() {
