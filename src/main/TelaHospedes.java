@@ -2,6 +2,7 @@ package main;
 
 import DTO.HospedesDTO;
 import components.DsButton;
+import components.DsTable;
 import components.DsTitleLabel;
 import controllers.HospedeController;
 import theme.DesignTokens.ColorPalette;
@@ -15,7 +16,7 @@ import java.util.List;
 public class TelaHospedes extends JPanel {
 
     private DefaultTableModel modeloTabela;
-    private JTable tabelaHospedes;
+    private DsTable tabelaHospedes;
     private HospedeController controller;
 
     public TelaHospedes() {
@@ -47,13 +48,7 @@ public class TelaHospedes extends JPanel {
             }
         };
         
-        tabelaHospedes = new JTable(modeloTabela);
-        tabelaHospedes.setRowHeight(40);
-        tabelaHospedes.setIntercellSpacing(new Dimension(0, 0));
-        tabelaHospedes.setShowVerticalLines(false);
-        tabelaHospedes.setSelectionBackground(ColorPalette.PRIMARY.brighter());
-        tabelaHospedes.setSelectionForeground(ColorPalette.TEXT_PRIMARY);
-        tabelaHospedes.setFont(theme.DesignTokens.Typography.BODY_FONT);
+        tabelaHospedes = new DsTable(modeloTabela);
 
         JScrollPane jpTabela = new JScrollPane(tabelaHospedes);
         jpTabela.setBorder(BorderFactory.createEmptyBorder(0, Spacing.MD, 0, Spacing.MD));

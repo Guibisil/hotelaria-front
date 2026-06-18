@@ -2,6 +2,9 @@ package main;
 
 import DTO.HospedesDTO;
 import components.DsButton;
+import components.DsFormattedTextField;
+import components.DsLabel;
+import components.DsTextField;
 import components.DsTitleLabel;
 import controllers.HospedeController;
 import theme.DesignTokens.ColorPalette;
@@ -15,10 +18,10 @@ import java.awt.event.ActionEvent;
 public class TelaNovoHospede extends JDialog {
 
     private final HospedeController controller;
-    private JTextField txtNome;
-    private JTextField txtEmail;
-    private JFormattedTextField txtCpf;
-    private JFormattedTextField txtDataNasc;
+    private DsTextField txtNome;
+    private DsTextField txtEmail;
+    private DsFormattedTextField txtCpf;
+    private DsFormattedTextField txtDataNasc;
 
     public TelaNovoHospede(HospedeController controller) {
         this.controller = controller;
@@ -38,23 +41,23 @@ public class TelaNovoHospede extends JDialog {
         jpDados.setBorder(BorderFactory.createEmptyBorder(Spacing.MD, Spacing.MD, Spacing.MD, Spacing.MD));
 
         DsTitleLabel jlTitulo = new DsTitleLabel("Cadastro de hóspede");
-        JLabel jlNome = new JLabel("Nome");
-        JLabel jlCpf = new JLabel("CPF");
-        JLabel jlEmail = new JLabel("Email");
-        JLabel jlDataNasc = new JLabel("Data de nascimento");
+        DsLabel jlNome = new DsLabel("Nome");
+        DsLabel jlCpf = new DsLabel("CPF");
+        DsLabel jlEmail = new DsLabel("Email");
+        DsLabel jlDataNasc = new DsLabel("Data de nascimento");
 
-        txtNome = new JTextField();
-        txtEmail = new JTextField();
+        txtNome = new DsTextField();
+        txtEmail = new DsTextField();
 
         try {
             MaskFormatter mascaraCpf = new MaskFormatter("###.###.###-##");
             mascaraCpf.setPlaceholderCharacter('_');
-            txtCpf = new JFormattedTextField(mascaraCpf);
+            txtCpf = new DsFormattedTextField(mascaraCpf);
             txtCpf.setColumns(11);
 
             MaskFormatter mascaraData = new MaskFormatter("##/##/####");
             mascaraData.setPlaceholderCharacter('_');
-            txtDataNasc = new JFormattedTextField(mascaraData);
+            txtDataNasc = new DsFormattedTextField(mascaraData);
             txtDataNasc.setColumns(8);
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,7 +76,7 @@ public class TelaNovoHospede extends JDialog {
         jpDados.add(txtEmail);
         jpDados.add(jlDataNasc);
         jpDados.add(txtDataNasc);
-        jpDados.add(new JLabel("")); // spacer
+        jpDados.add(new DsLabel("")); // spacer
         jpDados.add(btnCadastrar);
 
         add(jpDados);
