@@ -6,6 +6,7 @@
 
 # Project output directory
 /out/
+/target/
 
 # IntelliJ IDEA configuration
 .idea/workspace.xml
