@@ -1,8 +1,8 @@
 package config;
 
 import controllers.HospedeController;
-import main.TelaHospedes;
-import main.TelaReservas;
+import views.hospedes.TelaHospedes;
+import views.reservas.TelaReservas;
 import services.HospedeService;
 import services.IHospedeService;
 import services.IQuartoService;

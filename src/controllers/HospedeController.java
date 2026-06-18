@@ -1,7 +1,7 @@
 package controllers;
 
 import DTO.HospedesDTO;
-import main.TelaHospedes;
+import views.hospedes.TelaHospedes;
 import services.IHospedeService;
 import services.ReservaService;
 

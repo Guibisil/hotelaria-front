@@ -4,7 +4,7 @@ import DTO.HospedesDTO;
 import DTO.QuartoDTO;
 import DTO.ReservaDTO;
 import enums.ReservaAction;
-import main.TelaReservas;
+import views.reservas.TelaReservas;
 import services.HospedeService;
 import services.IHospedeService;
 import services.IQuartoService;
