@@ -24,6 +24,10 @@ public class DesignTokens {
         public static final Color SUCCESS_HOVER = new Color(30, 133, 61);
         public static final Color ON_SUCCESS = Color.WHITE;
 
+        public static final Color WARNING = new Color(217, 119, 6); // Orange warning color
+        public static final Color WARNING_HOVER = new Color(245, 158, 11);
+        public static final Color ON_WARNING = Color.WHITE;
+
         public static final Color BACKGROUND = new Color(253, 251, 255); // M3 Surface/Background
         public static final Color SURFACE = Color.WHITE;
         public static final Color SURFACE_VARIANT = new Color(223, 226, 235); // M3 Surface Variant
