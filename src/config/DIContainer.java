@@ -12,6 +12,8 @@ import services.QuartoService;
 import services.ReservaService;
 import services.TimelineAggregatorService;
 
+import controllers.NovaReservaController;
+
 public class DIContainer {
     
     private static DIContainer instance;
@@ -25,6 +27,7 @@ public class DIContainer {
     // Controllers
     private final HospedeController hospedeController;
     private final ReservaController reservaController;
+    private final NovaReservaController novaReservaController;
 
     private DIContainer() {
         this.reservaService = new ReservaService();
@@ -34,6 +37,7 @@ public class DIContainer {
         
         this.hospedeController = new HospedeController(hospedeService);
         this.reservaController = new ReservaController(reservaService, timelineAggregatorService);
+        this.novaReservaController = new NovaReservaController(hospedeService, quartoService, reservaService);
     }
 
     public static DIContainer getInstance() {
@@ -63,9 +67,14 @@ public class DIContainer {
         return reservaController;
     }
 
+    public NovaReservaController getNovaReservaController() {
+        return novaReservaController;
+    }
+
     public TelaReservas criarTelaReservas() {
         TelaReservas tela = new TelaReservas();
         tela.setController(reservaController);
+        tela.setNovaReservaController(novaReservaController);
         return tela;
     }
 
