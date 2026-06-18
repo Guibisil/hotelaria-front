@@ -1,6 +1,7 @@
 package config;
 
 import controllers.HospedeController;
+import controllers.ReservaController;
 import views.hospedes.TelaHospedes;
 import views.reservas.TelaReservas;
 import services.HospedeService;
@@ -9,6 +10,7 @@ import services.IQuartoService;
 import services.IReservaService;
 import services.QuartoService;
 import services.ReservaService;
+import services.TimelineAggregatorService;
 
 public class DIContainer {
     
@@ -18,11 +20,20 @@ public class DIContainer {
     private final IReservaService reservaService;
     private final IQuartoService quartoService;
     private final IHospedeService hospedeService;
+    private final TimelineAggregatorService timelineAggregatorService;
+
+    // Controllers
+    private final HospedeController hospedeController;
+    private final ReservaController reservaController;
 
     private DIContainer() {
         this.reservaService = new ReservaService();
         this.quartoService = new QuartoService();
         this.hospedeService = new HospedeService();
+        this.timelineAggregatorService = new TimelineAggregatorService(quartoService, hospedeService, reservaService);
+        
+        this.hospedeController = new HospedeController(hospedeService);
+        this.reservaController = new ReservaController(reservaService, timelineAggregatorService);
     }
 
     public static DIContainer getInstance() {
@@ -44,16 +55,23 @@ public class DIContainer {
         return hospedeService;
     }
 
+    public HospedeController getHospedeController() {
+        return hospedeController;
+    }
+
+    public ReservaController getReservaController() {
+        return reservaController;
+    }
+
     public TelaReservas criarTelaReservas() {
-        TelaReservas tela = new TelaReservas(reservaService, quartoService, hospedeService);
+        TelaReservas tela = new TelaReservas();
+        tela.setController(reservaController);
         return tela;
     }
 
     public TelaHospedes criarTelaHospedes() {
         TelaHospedes tela = new TelaHospedes();
-        HospedeController controller = new HospedeController(hospedeService);
-        controller.setTelaHospedes(tela);
-        tela.setController(controller);
+        tela.setController(hospedeController);
         return tela;
     }
 }
