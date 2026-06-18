@@ -4,138 +4,110 @@ import DTO.ReservaDTO;
 import components.DsButton;
 import components.DsButton.ButtonType;
 import components.DsTitleLabel;
-import services.ReservaService;
-import services.ReservaService.BusinessRuleException;
+import controllers.ReservaController;
+import enums.ReservaAction;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.concurrent.CompletionException;
+import java.util.List;
 
 public class TelaReservas extends JPanel {
 
     private final DefaultTableModel modeloTabela;
-    private final JTable tabela_reservas;
-    private final ReservaService reservaService;
+    private final JTable tabelaReservas;
+    private final ReservaController controller;
 
     public TelaReservas() {
-        this.reservaService = new ReservaService();
+        this.controller = new ReservaController(this);
         this.setLayout(new BorderLayout());
 
-        JPanel jp_topo = new JPanel(new BorderLayout());
-        jp_topo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel jpTopo = new JPanel(new BorderLayout());
+        jpTopo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        DsTitleLabel jl_titulo = new DsTitleLabel("Gerenciamento de Reservas");
+        DsTitleLabel jlTitulo = new DsTitleLabel("Gerenciamento de Reservas");
 
-        DsButton btn_nova_reserva = new DsButton("Nova Reserva", ButtonType.PRIMARY);
+        DsButton btnNovaReserva = new DsButton("Nova Reserva", ButtonType.PRIMARY);
 
-        jp_topo.add(jl_titulo, BorderLayout.WEST);
-        jp_topo.add(btn_nova_reserva, BorderLayout.EAST);
+        jpTopo.add(jlTitulo, BorderLayout.WEST);
+        jpTopo.add(btnNovaReserva, BorderLayout.EAST);
 
         String[] colunas = {"ID", "Quarto", "Entrada", "Saída", "Status"};
 
         modeloTabela = new DefaultTableModel(colunas, 0);
-        tabela_reservas = new JTable(modeloTabela);
-        tabela_reservas.setRowHeight(25);
+        tabelaReservas = new JTable(modeloTabela);
+        tabelaReservas.setRowHeight(25);
 
-        JScrollPane jp_tabela = new JScrollPane(tabela_reservas);
-        jp_tabela.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        JScrollPane jpTabela = new JScrollPane(tabelaReservas);
+        jpTabela.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
-        JPanel jp_acoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JPanel jpAcoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
 
-        DsButton btn_checkin = new DsButton("Fazer check-in", ButtonType.SECONDARY);
-        DsButton btn_checkout = new DsButton("Fazer checkout", ButtonType.DANGER);
+        DsButton btnCheckin = new DsButton("Fazer check-in", ButtonType.SECONDARY);
+        DsButton btnCheckout = new DsButton("Fazer checkout", ButtonType.DANGER);
 
-        jp_acoes.add(btn_checkin);
-        jp_acoes.add(btn_checkout);
+        jpAcoes.add(btnCheckin);
+        jpAcoes.add(btnCheckout);
 
-        this.add(jp_topo, BorderLayout.NORTH);
-        this.add(jp_acoes, BorderLayout.SOUTH);
-        this.add(jp_tabela, BorderLayout.CENTER);
+        this.add(jpTopo, BorderLayout.NORTH);
+        this.add(jpAcoes, BorderLayout.SOUTH);
+        this.add(jpTabela, BorderLayout.CENTER);
 
-        btn_checkin.addActionListener(e -> {
-            int linha = tabela_reservas.getSelectedRow();
+        btnCheckin.addActionListener(e -> {
+            int linha = tabelaReservas.getSelectedRow();
             if (linha != -1) {
-                String id = tabela_reservas.getValueAt(linha, 0).toString();
-                btn_checkin.setEnabled(false);
-                reservaService.realizarAcao(id, "checkin")
-                        .thenRun(() -> SwingUtilities.invokeLater(() -> {
-                            btn_checkin.setEnabled(true);
-                            JOptionPane.showMessageDialog(this, "Ação 'check-in' realizada com sucesso!");
-                            carregarReservasDaAPI();
-                        }))
-                        .exceptionally(ex -> {
-                            SwingUtilities.invokeLater(() -> {
-                                btn_checkin.setEnabled(true);
-                                tratarErroAPI(ex, "realizar check-in");
-                            });
-                            return null;
-                        });
+                String id = tabelaReservas.getValueAt(linha, 0).toString();
+                btnCheckin.setEnabled(false);
+                
+                controller.realizarAcao(id, ReservaAction.CHECKIN, 
+                    () -> mostrarMensagemSucesso("Ação 'check-in' realizada com sucesso!"),
+                    () -> btnCheckin.setEnabled(true)
+                );
             } else {
-                JOptionPane.showMessageDialog(this, "Selecione uma reserva na tabela primeiro");
+                mostrarAviso("Selecione uma reserva na tabela primeiro", "Aviso");
             }
         });
 
-        btn_checkout.addActionListener(e -> {
-            int linha = tabela_reservas.getSelectedRow();
-            if (linha != -1) { // BUG FIX: corrigido de != 1 para != -1
-                String id = tabela_reservas.getValueAt(linha, 0).toString();
-                btn_checkout.setEnabled(false);
-                reservaService.realizarAcao(id, "checkout")
-                        .thenRun(() -> SwingUtilities.invokeLater(() -> {
-                            btn_checkout.setEnabled(true);
-                            JOptionPane.showMessageDialog(this, "Ação 'check-out' realizada com sucesso!");
-                            carregarReservasDaAPI();
-                        }))
-                        .exceptionally(ex -> {
-                            SwingUtilities.invokeLater(() -> {
-                                btn_checkout.setEnabled(true);
-                                tratarErroAPI(ex, "realizar check-out");
-                            });
-                            return null;
-                        });
+        btnCheckout.addActionListener(e -> {
+            int linha = tabelaReservas.getSelectedRow();
+            if (linha != -1) {
+                String id = tabelaReservas.getValueAt(linha, 0).toString();
+                btnCheckout.setEnabled(false);
+                
+                controller.realizarAcao(id, ReservaAction.CHECKOUT,
+                    () -> mostrarMensagemSucesso("Ação 'check-out' realizada com sucesso!"),
+                    () -> btnCheckout.setEnabled(true)
+                );
             } else {
-                JOptionPane.showMessageDialog(this, "Selecione uma reserva na tabela primeiro");
+                mostrarAviso("Selecione uma reserva na tabela primeiro", "Aviso");
             }
         });
 
-        carregarReservasDaAPI();
+        controller.carregarReservas();
     }
 
-    private void carregarReservasDaAPI() {
-        reservaService.buscarReservas()
-                .thenAccept(listaReservas -> SwingUtilities.invokeLater(() -> {
-                    modeloTabela.setRowCount(0);
-                    for (ReservaDTO r : listaReservas) {
-                        modeloTabela.addRow(new Object[]{
-                                r.getId(),
-                                r.getRoom_id(),
-                                r.getCheckin_date(),
-                                r.getCheckout_date(),
-                                r.getStatus(), // BUG FIX: corrigido de getStatuts()
-                        });
-                    }
-                }))
-                .exceptionally(ex -> {
-                    SwingUtilities.invokeLater(() -> {
-                        ex.printStackTrace();
-                        JOptionPane.showMessageDialog(this, "Erro ao carregar reservas. Verifique se o backend está rodando.", "Erro de Conexão", JOptionPane.ERROR_MESSAGE);
-                    });
-                    return null;
-                });
+    public void atualizarTabela(List<ReservaDTO> listaReservas) {
+        modeloTabela.setRowCount(0);
+        for (ReservaDTO r : listaReservas) {
+            modeloTabela.addRow(new Object[]{
+                    r.getId(),
+                    r.getRoomId(),
+                    r.getCheckinDate(),
+                    r.getCheckoutDate(),
+                    r.getStatus(),
+            });
+        }
     }
 
-    private void tratarErroAPI(Throwable ex, String operacao) {
-        Throwable causa = ex;
-        if (causa instanceof CompletionException && causa.getCause() != null) {
-            causa = causa.getCause();
-        }
+    public void mostrarMensagemSucesso(String mensagem) {
+        JOptionPane.showMessageDialog(this, mensagem);
+    }
 
-        if (causa instanceof BusinessRuleException) {
-            JOptionPane.showMessageDialog(this, "Bloqueado pela Regra de Negócio:\n" + causa.getMessage(), "Aviso", JOptionPane.WARNING_MESSAGE);
-        } else {
-            causa.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erro ao " + operacao + ": " + causa.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-        }
+    public void mostrarMensagemErro(String mensagem, String titulo) {
+        JOptionPane.showMessageDialog(this, mensagem, titulo, JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void mostrarAviso(String mensagem, String titulo) {
+        JOptionPane.showMessageDialog(this, mensagem, titulo, JOptionPane.WARNING_MESSAGE);
     }
 }
