@@ -1,12 +1,12 @@
 package main;
 
-import main.Menu;
+import views.layout.StartupView;
 
 public class Main {
     public static void main(String[] args) {
 
-        Menu menu = new Menu();
-        menu.inicio();
+        StartupView menu = new StartupView();
+        menu.show();
 
     }
 }

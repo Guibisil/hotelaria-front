@@ -1,6 +1,6 @@
 package services;
 
-import DTO.HospedesDTO;
+import DTO.HospedeDTO;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import config.ApiConfig;
@@ -24,7 +24,7 @@ public class HospedeService implements IHospedeService {
     }
 
     @Override
-    public CompletableFuture<List<HospedesDTO>> buscarHospedes() {
+    public CompletableFuture<List<HospedeDTO>> buscarHospedes() {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL))
                 .GET()
@@ -33,9 +33,31 @@ public class HospedeService implements IHospedeService {
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(response -> {
                     if (response.statusCode() == 200) {
-                        return gson.fromJson(response.body(), new TypeToken<List<HospedesDTO>>(){}.getType());
+                        return gson.fromJson(response.body(), new TypeToken<List<HospedeDTO>>(){}.getType());
                     } else {
                         throw new RuntimeException("Erro ao buscar hóspedes: " + response.statusCode());
+                    }
+                });
+    }
+
+    @Override
+    public CompletableFuture<Void> cadastrarHospede(HospedeDTO hospede) {
+        String json = gson.toJson(hospede);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_URL))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenAccept(response -> {
+                    int status = response.statusCode();
+                    if (status == 200 || status == 201) {
+                        return; // Sucesso
+                    } else if (status == 400) {
+                        throw new services.ReservaService.BusinessRuleException(response.body());
+                    } else {
+                        throw new RuntimeException("Erro no servidor. Código: " + status);
                     }
                 });
     }

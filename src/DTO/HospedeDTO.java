@@ -1,13 +1,16 @@
 package DTO;
 
-public class HospedesDTO {
+import com.google.gson.annotations.SerializedName;
+
+public class HospedeDTO {
 
     private Long id;
 
     private String name;
     private String cpf;
     private String email;
-    private String birth_date;
+    @SerializedName("birth_date")
+    private String birthDate;
 
     public String getName() {
         return name;
@@ -21,8 +24,8 @@ public class HospedesDTO {
         return email;
     }
 
-    public String getBirth_date() {
-        return birth_date;
+    public String getBirthDate() {
+        return birthDate;
     }
 
     public Long getId() {
@@ -45,7 +48,7 @@ public class HospedesDTO {
         this.email = email;
     }
 
-    public void setBirth_date(String birth_date) {
-        this.birth_date = birth_date;
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
     }
 }
