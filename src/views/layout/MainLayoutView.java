@@ -97,7 +97,7 @@ public class MainLayoutView {
     public void showDashboard(JPanel jpContent) {
         jpContent.removeAll();
 
-        DashboardView dashboardView = new DashboardView();
+        DashboardView dashboardView = new DashboardView(DIContainer.getInstance().getDashboardController());
 
         jpContent.add(dashboardView);
 

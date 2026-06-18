@@ -10,6 +10,8 @@ public class ReservaDTO {
     private Long guestId;
     
     private transient String guestName;
+    private transient String roomNumber;
+    private transient Double roomDailyRate;
     
     @SerializedName("room_id")
     private int roomId;
@@ -47,6 +49,22 @@ public class ReservaDTO {
 
     public void setGuestName(String guestName) {
         this.guestName = guestName;
+    }
+
+    public String getRoomNumber() {
+        return roomNumber;
+    }
+
+    public void setRoomNumber(String roomNumber) {
+        this.roomNumber = roomNumber;
+    }
+
+    public Double getRoomDailyRate() {
+        return roomDailyRate;
+    }
+
+    public void setRoomDailyRate(Double roomDailyRate) {
+        this.roomDailyRate = roomDailyRate;
     }
 
     public int getRoomId() {
