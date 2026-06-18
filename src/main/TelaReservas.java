@@ -25,8 +25,8 @@ public class TelaReservas extends JPanel {
     private final DsTimelineTable tabelaReservas;
     private final ReservaController controller;
 
-    public TelaReservas() {
-        this.controller = new ReservaController(this);
+    public TelaReservas(services.IReservaService reservaService, services.IQuartoService quartoService, services.IHospedeService hospedeService) {
+        this.controller = new ReservaController(this, reservaService, quartoService, hospedeService);
         this.setLayout(new BorderLayout());
         this.setBackground(ColorPalette.BACKGROUND);
 

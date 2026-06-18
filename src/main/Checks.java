@@ -1,8 +1,6 @@
 package main;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import java.util.HashMap;
 
@@ -58,7 +56,7 @@ public class Checks {
         jp_valor.setBackground(Color.WHITE);
     }
 
-    public void teste (HashMap info_hospede) {
+    public void teste (HashMap<String, String> info_hospede) {
         info_hospede.put("id", "12");
         info_hospede.put("valor_final", "2000");
         info_hospede.put("check_out", "01/11/2026");

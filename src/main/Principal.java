@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import config.DIContainer;
 
 public class Principal {
     
@@ -104,7 +105,7 @@ public class Principal {
     public void reservas (JPanel jp_conteudo) {
         jp_conteudo.removeAll();
 
-        TelaReservas telaReservas = new TelaReservas();
+        TelaReservas telaReservas = DIContainer.getInstance().criarTelaReservas();
 
         jp_conteudo.add(telaReservas, BorderLayout.CENTER);
 
@@ -123,7 +124,7 @@ public class Principal {
     public void hospedes (JPanel jp_conteudo) {
         jp_conteudo.removeAll();
 
-        TelaHospedes tela_hospedes = new TelaHospedes();
+        TelaHospedes tela_hospedes = DIContainer.getInstance().criarTelaHospedes();
 
         jp_conteudo.add(tela_hospedes);
 

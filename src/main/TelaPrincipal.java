@@ -1,7 +1,5 @@
 package main;
 
-import main.Checks;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -24,7 +22,6 @@ public class TelaPrincipal extends JPanel {
         ActionListener btn_listener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String idHospede = e.getActionCommand();
                 check.novo_check();
             }
         };
