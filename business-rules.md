@@ -43,12 +43,12 @@ A ação de criar uma nova reserva é dividida em uma jornada de 4 etapas dentro
 * *Informações/Interações:* Campo de busca (Search) para encontrar hóspedes já cadastrados, lista de resultados (Nome, CPF, E-mail) selecionáveis via clique, e um botão `Cadastrar hóspede` caso seja um cliente novo.
 
 
-2. **Passo 2: Selecione o quarto**
-* *Informações/Interações:* Campo de busca por quartos e lista de opções disponíveis exibindo o Número do quarto, Categoria/Camas (ex: Suite Premium - 2 camas) e o valor da diária. O usuário seleciona o quarto clicando na linha correspondente.
-
-
-3. **Passo 3: Período da estadia**
+2. **Passo 2: Período da estadia**
 * *Informações/Interações:* Date pickers para definir a "Data de entrada" e "Data de saída". O sistema calcula dinamicamente e exibe o resumo de dias da estadia e o valor total previsto. Botão `Continuar`.
+
+
+3. **Passo 3: Selecione o quarto**
+* *Informações/Interações:* Campo de busca por quartos e lista de opções disponíveis exclusivamente para o período selecionado no passo anterior, exibindo o Número do quarto, Categoria/Camas (ex: Suite Premium - 2 camas) e o valor da diária. O usuário seleciona o quarto clicando na linha correspondente.
 
 
 4. **Passo 4: Confirmação e Finalização**

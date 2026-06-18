@@ -14,6 +14,7 @@ Gestão de Quartos:
   "number": "204B",
   "status": "OCCUPIED",
   "bed_count": 2,
+  "base_daily_rate": 150.00,
   "current_guest": {
     "name": "Maria Silva",
     "checkout_date": "2026-06-05"
@@ -25,6 +26,7 @@ Gestão de Quartos:
   "number": "204B",
   "status": "AVAILABLE",
   "bed_count": 2,
+  "base_daily_rate": 150.00,
   "current_guest": null
 }
 ```
