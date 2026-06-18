@@ -1,36 +1,33 @@
 package main;
 
 import DTO.ReservaDTO;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import components.DsButton;
+import components.DsButton.ButtonType;
+import components.DsTitleLabel;
+import services.ReservaService;
+import services.ReservaService.BusinessRuleException;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.List;
+import java.util.concurrent.CompletionException;
 
 public class TelaReservas extends JPanel {
 
-    private DefaultTableModel modeloTabela;
-    private JTable tabela_reservas;
+    private final DefaultTableModel modeloTabela;
+    private final JTable tabela_reservas;
+    private final ReservaService reservaService;
 
-    public TelaReservas (){
+    public TelaReservas() {
+        this.reservaService = new ReservaService();
         this.setLayout(new BorderLayout());
 
-        JPanel jp_topo = new JPanel((new BorderLayout()));
-        jp_topo.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        JPanel jp_topo = new JPanel(new BorderLayout());
+        jp_topo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel jl_titulo = new JLabel("Gerenciamento de Reservas");
-        jl_titulo.setFont(new Font("Arial", Font.BOLD, 20));
+        DsTitleLabel jl_titulo = new DsTitleLabel("Gerenciamento de Reservas");
 
-        JButton btn_nova_reserva = new JButton("Nova Reserva");
-        btn_nova_reserva.setBackground(new Color(40,167, 69));
-        btn_nova_reserva.setForeground(Color.WHITE);
+        DsButton btn_nova_reserva = new DsButton("Nova Reserva", ButtonType.PRIMARY);
 
         jp_topo.add(jl_titulo, BorderLayout.WEST);
         jp_topo.add(btn_nova_reserva, BorderLayout.EAST);
@@ -38,22 +35,16 @@ public class TelaReservas extends JPanel {
         String[] colunas = {"ID", "Quarto", "Entrada", "Saída", "Status"};
 
         modeloTabela = new DefaultTableModel(colunas, 0);
-        tabela_reservas = new JTable((modeloTabela));
+        tabela_reservas = new JTable(modeloTabela);
         tabela_reservas.setRowHeight(25);
 
         JScrollPane jp_tabela = new JScrollPane(tabela_reservas);
         jp_tabela.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
-        JPanel jp_acoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10,10));
+        JPanel jp_acoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
 
-        JButton btn_checkin = new JButton("Fazer check-in");
-        JButton btn_checkout = new JButton("Fazer checkout");
-
-        btn_checkin.setBackground(new Color(0,123,255));
-        btn_checkin.setForeground(Color.WHITE);
-
-        btn_checkout.setBackground(new Color(220,53,69));
-        btn_checkout.setForeground(Color.WHITE);
+        DsButton btn_checkin = new DsButton("Fazer check-in", ButtonType.SECONDARY);
+        DsButton btn_checkout = new DsButton("Fazer checkout", ButtonType.DANGER);
 
         jp_acoes.add(btn_checkin);
         jp_acoes.add(btn_checkout);
@@ -64,82 +55,87 @@ public class TelaReservas extends JPanel {
 
         btn_checkin.addActionListener(e -> {
             int linha = tabela_reservas.getSelectedRow();
-            if(linha != -1){
-                String id = tabela_reservas.getValueAt(linha,0).toString();
-                dispararAcaoAPI(id, "checkin");
-            }else {
+            if (linha != -1) {
+                String id = tabela_reservas.getValueAt(linha, 0).toString();
+                btn_checkin.setEnabled(false);
+                reservaService.realizarAcao(id, "checkin")
+                        .thenRun(() -> SwingUtilities.invokeLater(() -> {
+                            btn_checkin.setEnabled(true);
+                            JOptionPane.showMessageDialog(this, "Ação 'check-in' realizada com sucesso!");
+                            carregarReservasDaAPI();
+                        }))
+                        .exceptionally(ex -> {
+                            SwingUtilities.invokeLater(() -> {
+                                btn_checkin.setEnabled(true);
+                                tratarErroAPI(ex, "realizar check-in");
+                            });
+                            return null;
+                        });
+            } else {
                 JOptionPane.showMessageDialog(this, "Selecione uma reserva na tabela primeiro");
             }
         });
 
         btn_checkout.addActionListener(e -> {
             int linha = tabela_reservas.getSelectedRow();
-            if(linha != 1 ){
+            if (linha != -1) { // BUG FIX: corrigido de != 1 para != -1
                 String id = tabela_reservas.getValueAt(linha, 0).toString();
-                dispararAcaoAPI(id, "checkout");
-            }else {
+                btn_checkout.setEnabled(false);
+                reservaService.realizarAcao(id, "checkout")
+                        .thenRun(() -> SwingUtilities.invokeLater(() -> {
+                            btn_checkout.setEnabled(true);
+                            JOptionPane.showMessageDialog(this, "Ação 'check-out' realizada com sucesso!");
+                            carregarReservasDaAPI();
+                        }))
+                        .exceptionally(ex -> {
+                            SwingUtilities.invokeLater(() -> {
+                                btn_checkout.setEnabled(true);
+                                tratarErroAPI(ex, "realizar check-out");
+                            });
+                            return null;
+                        });
+            } else {
                 JOptionPane.showMessageDialog(this, "Selecione uma reserva na tabela primeiro");
             }
         });
+
         carregarReservasDaAPI();
     }
-    private void carregarReservasDaAPI(){
-        try{
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8080/api/reservas"))
-                    .GET()
-                    .build();
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if(response.statusCode() == 200) {
-                String jsonResposta = response.body();
-                modeloTabela.setRowCount(0);
-
-                Gson gson = new Gson();
-
-                Type tipoLista = new TypeToken<List<ReservaDTO>>(){}.getType();
-                List<ReservaDTO> listaReservas = gson.fromJson(jsonResposta, tipoLista);
-
-                for(ReservaDTO r : listaReservas){
-                    modeloTabela.addRow(new Object[]{
-                            r.getId(),
-                            r.getRoom_id(),
-                            r.getCheckin_date(),
-                            r.getCheckout_date(),
-                            r.getStatuts(),
+    private void carregarReservasDaAPI() {
+        reservaService.buscarReservas()
+                .thenAccept(listaReservas -> SwingUtilities.invokeLater(() -> {
+                    modeloTabela.setRowCount(0);
+                    for (ReservaDTO r : listaReservas) {
+                        modeloTabela.addRow(new Object[]{
+                                r.getId(),
+                                r.getRoom_id(),
+                                r.getCheckin_date(),
+                                r.getCheckout_date(),
+                                r.getStatus(), // BUG FIX: corrigido de getStatuts()
+                        });
+                    }
+                }))
+                .exceptionally(ex -> {
+                    SwingUtilities.invokeLater(() -> {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this, "Erro ao carregar reservas. Verifique se o backend está rodando.", "Erro de Conexão", JOptionPane.ERROR_MESSAGE);
                     });
-                }
-            }else {
-                JOptionPane.showMessageDialog(this, "Erro ao buscar dados. Status: " + response.statusCode());
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("Erro de conexão, Verifique se o Spring Boot esta rodando");
-        }
+                    return null;
+                });
     }
-    private void dispararAcaoAPI(String id , String acao){
-        try{
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8080/api/reservas/" + id + "/" + acao))
-                    .POST(HttpRequest.BodyPublishers.noBody())
-                    .build();
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    private void tratarErroAPI(Throwable ex, String operacao) {
+        Throwable causa = ex;
+        if (causa instanceof CompletionException && causa.getCause() != null) {
+            causa = causa.getCause();
+        }
 
-            if(response.statusCode() == 200 || response.statusCode() == 201){
-                JOptionPane.showMessageDialog(this, "Ação '" + acao + "' realizada com sucesso!");
-                carregarReservasDaAPI();
-            }else if(response.statusCode() == 400) {
-                JOptionPane.showMessageDialog(this, "BLoqueado pela Regra de Negocio: \n" + response.body(), "Aviso", JOptionPane.WARNING_MESSAGE);
-            }else{
-                JOptionPane.showMessageDialog(this, "Erro no servidor: " + response.statusCode());
-            }
-        }catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erro de rede ao tentar fazer " + acao);
+        if (causa instanceof BusinessRuleException) {
+            JOptionPane.showMessageDialog(this, "Bloqueado pela Regra de Negócio:\n" + causa.getMessage(), "Aviso", JOptionPane.WARNING_MESSAGE);
+        } else {
+            causa.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erro ao " + operacao + ": " + causa.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
