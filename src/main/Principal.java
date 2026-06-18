@@ -123,11 +123,10 @@ public class Principal {
     public void hospedes (JPanel jp_conteudo) {
         jp_conteudo.removeAll();
 
-        JLabel jl_hospedes = new JLabel("página de hóspedes");
-        jl_hospedes.setFont(new Font("Arial", Font.BOLD, 16));
-        jl_hospedes.setHorizontalAlignment(SwingConstants.CENTER);
+        TelaHospedes tela_hospedes = new TelaHospedes();
 
-        jp_conteudo.add(jl_hospedes, BorderLayout.CENTER);
+        jp_conteudo.add(tela_hospedes);
+
         jp_conteudo.revalidate();
         jp_conteudo.repaint();
     }
