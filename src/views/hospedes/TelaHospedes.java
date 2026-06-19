@@ -5,6 +5,7 @@ import components.DsButton;
 import components.DsTable;
 import components.DsTitleLabel;
 import components.DsDialog;
+import components.DsCard;
 import controllers.HospedeController;
 import theme.DesignTokens.ColorPalette;
 import theme.DesignTokens.Spacing;
@@ -49,18 +50,29 @@ public class TelaHospedes extends JPanel {
             }
         };
         
+        DsCard jpCard = new DsCard();
+        jpCard.setLayout(new BorderLayout());
+        
         tabelaHospedes = new DsTable(modeloTabela);
 
         JScrollPane jpTabela = new JScrollPane(tabelaHospedes);
-        jpTabela.setBorder(BorderFactory.createEmptyBorder(0, Spacing.MD, 0, Spacing.MD));
-        jpTabela.getViewport().setBackground(ColorPalette.BACKGROUND);
+        jpTabela.setBorder(BorderFactory.createEmptyBorder());
+        jpTabela.getViewport().setBackground(ColorPalette.SURFACE);
+        
+        jpCard.add(jpTabela, BorderLayout.CENTER);
 
         JPanel jpAcoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, Spacing.MD, Spacing.MD));
         jpAcoes.setBackground(ColorPalette.BACKGROUND);
 
         this.add(jpTopo, BorderLayout.NORTH);
         this.add(jpAcoes, BorderLayout.SOUTH);
-        this.add(jpTabela, BorderLayout.CENTER);
+        
+        JPanel paddingPanel = new JPanel(new BorderLayout());
+        paddingPanel.setBackground(ColorPalette.BACKGROUND);
+        paddingPanel.setBorder(BorderFactory.createEmptyBorder(0, Spacing.MD, Spacing.MD, Spacing.MD));
+        paddingPanel.add(jpCard, BorderLayout.CENTER);
+        
+        this.add(paddingPanel, BorderLayout.CENTER);
     }
 
     public void setController(HospedeController controller) {

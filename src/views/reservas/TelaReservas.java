@@ -4,11 +4,11 @@ import DTO.QuartoDTO;
 import DTO.ReservaDTO;
 import components.DsButton;
 import components.DsButton.ButtonType;
-import components.DsTimelineCell;
 import components.DsTimelineCellRenderer;
 import components.DsTimelineTable;
 import components.DsTitleLabel;
 import components.DsDialog;
+import components.DsCard;
 import controllers.ReservaController;
 import controllers.NovaReservaController;
 
@@ -56,17 +56,28 @@ public class TelaReservas extends JPanel {
         jpTopo.add(jlTitulo, BorderLayout.WEST);
         jpTopo.add(btnNovaReserva, BorderLayout.EAST);
 
+        DsCard jpCard = new DsCard();
+        jpCard.setLayout(new BorderLayout());
+        
         tabelaReservas = new DsTimelineTable();
         tabelaReservas.setDefaultRenderer(Object.class, new DsTimelineCellRenderer());
         
         tabelaReservas.setModel(new ReservaTimelineTableModel(null, null, null));
 
         JScrollPane jpTabela = new JScrollPane(tabelaReservas);
-        jpTabela.setBorder(BorderFactory.createEmptyBorder(0, Spacing.MD, 0, Spacing.MD));
-        jpTabela.getViewport().setBackground(ColorPalette.BACKGROUND);
+        jpTabela.setBorder(BorderFactory.createEmptyBorder());
+        jpTabela.getViewport().setBackground(ColorPalette.SURFACE);
+        
+        jpCard.add(jpTabela, BorderLayout.CENTER);
 
         this.add(jpTopo, BorderLayout.NORTH);
-        this.add(jpTabela, BorderLayout.CENTER);
+        
+        JPanel paddingPanel = new JPanel(new BorderLayout());
+        paddingPanel.setBackground(ColorPalette.BACKGROUND);
+        paddingPanel.setBorder(BorderFactory.createEmptyBorder(0, Spacing.MD, Spacing.MD, Spacing.MD));
+        paddingPanel.add(jpCard, BorderLayout.CENTER);
+        
+        this.add(paddingPanel, BorderLayout.CENTER);
 
 
     }

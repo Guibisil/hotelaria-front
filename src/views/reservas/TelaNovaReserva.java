@@ -209,15 +209,34 @@ public class TelaNovaReserva extends DsModal {
     }
 
     private JPanel criarGuestCard(HospedeDTO h) {
-        JPanel card = new JPanel(new BorderLayout(Spacing.MD, 0));
         boolean isSelected = h.getId().equals(hospedeSelecionadoId);
-        Color bg = isSelected ? ColorPalette.SECONDARY : ColorPalette.BACKGROUND;
+        
+        JPanel card = new JPanel(new BorderLayout(Spacing.MD, 0)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, theme.DesignTokens.Radius.LARGE, theme.DesignTokens.Radius.LARGE);
+                
+                if (isSelected) {
+                    g2.setColor(ColorPalette.PRIMARY);
+                    g2.setStroke(new BasicStroke(2f));
+                    g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, theme.DesignTokens.Radius.LARGE, theme.DesignTokens.Radius.LARGE);
+                } else {
+                    g2.setColor(ColorPalette.BORDER_VARIANT);
+                    g2.setStroke(new BasicStroke(1f));
+                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, theme.DesignTokens.Radius.LARGE, theme.DesignTokens.Radius.LARGE);
+                }
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        card.setOpaque(false);
+        Color bg = isSelected ? new Color(ColorPalette.PRIMARY.getRed(), ColorPalette.PRIMARY.getGreen(), ColorPalette.PRIMARY.getBlue(), 15) : ColorPalette.SURFACE;
         card.setBackground(bg);
         
-        card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(0, 0, 1, 0, ColorPalette.BORDER_VARIANT),
-            BorderFactory.createEmptyBorder(Spacing.MD, Spacing.SM, Spacing.MD, Spacing.SM)
-        ));
+        card.setBorder(BorderFactory.createEmptyBorder(Spacing.MD, Spacing.MD, Spacing.MD, Spacing.MD));
 
         JLabel lblAvatar = new JLabel();
         try {
@@ -229,31 +248,30 @@ public class TelaNovaReserva extends DsModal {
             lblAvatar.setFont(new Font("Segoe UI", Font.PLAIN, 24));
             lblAvatar.setForeground(ColorPalette.TEXT_SECONDARY);
         }
-        lblAvatar.setBorder(new EmptyBorder(0, Spacing.SM, 0, Spacing.MD));
         
         JPanel infoPanel = new JPanel(new GridLayout(2, 1));
         infoPanel.setBackground(bg);
         infoPanel.setOpaque(false);
         
         DsLabel lblNome = new DsLabel(h.getName());
-        lblNome.setFont(theme.DesignTokens.Typography.TITLE_FONT);
-        if (isSelected) lblNome.setForeground(ColorPalette.ON_SECONDARY);
+        lblNome.setFont(theme.DesignTokens.Typography.TITLE_FONT.deriveFont(16f));
+        if (isSelected) lblNome.setForeground(ColorPalette.PRIMARY);
+        else lblNome.setForeground(ColorPalette.TEXT_PRIMARY);
         
         String cpfMasked = h.getCpf();
         if(cpfMasked != null && cpfMasked.length() >= 11) {
             cpfMasked = cpfMasked.substring(0, 4) + "***.***-" + cpfMasked.substring(cpfMasked.length()-2);
         }
         
-        DsLabel lblDetalhes = new DsLabel("CPF: " + cpfMasked + "    E-mail: " + h.getEmail());
-        if (isSelected) lblDetalhes.setForeground(ColorPalette.ON_SECONDARY);
-        else lblDetalhes.setForeground(ColorPalette.TEXT_SECONDARY);
+        DsLabel lblDetalhes = new DsLabel("CPF: " + cpfMasked + " • E-mail: " + h.getEmail());
+        lblDetalhes.setForeground(ColorPalette.TEXT_SECONDARY);
         lblDetalhes.setFont(theme.DesignTokens.Typography.SMALL_FONT);
 
         infoPanel.add(lblNome);
         infoPanel.add(lblDetalhes);
 
         JLabel lblSeta = new JLabel(" > ");
-        lblSeta.setForeground(ColorPalette.TEXT_SECONDARY);
+        lblSeta.setForeground(isSelected ? ColorPalette.PRIMARY : ColorPalette.TEXT_SECONDARY);
 
         card.add(lblAvatar, BorderLayout.WEST);
         card.add(infoPanel, BorderLayout.CENTER);
@@ -269,19 +287,30 @@ public class TelaNovaReserva extends DsModal {
             @Override
             public void mouseEntered(MouseEvent e) {
                 if(!h.getId().equals(hospedeSelecionadoId)) {
-                    card.setBackground(ColorPalette.SURFACE);
+                    card.setBackground(ColorPalette.SURFACE_VARIANT);
+                    card.repaint();
                 }
+                card.setCursor(new Cursor(Cursor.HAND_CURSOR));
             }
             @Override
             public void mouseExited(MouseEvent e) {
                 if(!h.getId().equals(hospedeSelecionadoId)) {
-                    card.setBackground(ColorPalette.BACKGROUND);
+                    card.setBackground(ColorPalette.SURFACE);
+                    card.repaint();
                 }
+                card.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
         });
         
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
-        return card;
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+        
+        JPanel container = new JPanel(new BorderLayout());
+        container.setOpaque(false);
+        container.setBorder(BorderFactory.createEmptyBorder(0, 0, Spacing.SM, 0));
+        container.add(card, BorderLayout.CENTER);
+        container.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80 + Spacing.SM));
+        
+        return container;
     }
 
     private void initPasso2() {
