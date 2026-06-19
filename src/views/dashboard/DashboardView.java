@@ -73,7 +73,7 @@ public class DashboardView extends JPanel {
         this.add(jpMain, BorderLayout.CENTER);
     }
 
-    private void carregarDados() {
+    public void carregarDados() {
         controller.carregarDadosDashboard().thenAccept(data -> SwingUtilities.invokeLater(() -> {
             List<ReservaDTO> checkins = controller.getCheckinsDoDia(data);
             List<ReservaDTO> checkouts = controller.getCheckoutsDoDia(data);

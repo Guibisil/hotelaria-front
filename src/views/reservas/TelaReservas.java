@@ -91,7 +91,7 @@ public class TelaReservas extends JPanel {
         this.novaReservaController = novaReservaController;
     }
 
-    private void carregarReservas() {
+    public void carregarReservas() {
         if (controller == null) return;
         controller.carregarReservas().thenAccept(data -> {
             List<LocalDate> datas = new ArrayList<>();
