@@ -16,10 +16,13 @@ public class MainLayoutView {
     private JPanel jpContent;
     private CardLayout cardLayout;
     
-    // Sidebar buttons
     private DsSidebarButton btnInicio;
     private DsSidebarButton btnReservas;
     private DsSidebarButton btnHospedes;
+
+    private DashboardView dashboardView;
+    private TelaReservas telaReservas;
+    private TelaHospedes telaHospedes;
 
     public void showMainLayout() {
         JFrame mainFrame = new JFrame("Hotelaria");
@@ -95,23 +98,32 @@ public class MainLayoutView {
         btnInicio.addActionListener(e -> {
             cardLayout.show(jpContent, "DASHBOARD");
             updateActiveButton(btnInicio);
+            if (dashboardView != null) {
+                dashboardView.carregarDados();
+            }
         });
 
         btnReservas.addActionListener(e -> {
             cardLayout.show(jpContent, "RESERVAS");
             updateActiveButton(btnReservas);
+            if (telaReservas != null) {
+                telaReservas.carregarReservas();
+            }
         });
 
         btnHospedes.addActionListener(e -> {
             cardLayout.show(jpContent, "HOSPEDES");
             updateActiveButton(btnHospedes);
+            if (telaHospedes != null) {
+                telaHospedes.carregarHospedes();
+            }
         });
     }
 
     private void setupViews() {
-        DashboardView dashboardView = new DashboardView(DIContainer.getInstance().getDashboardController());
-        TelaReservas telaReservas = DIContainer.getInstance().criarTelaReservas();
-        TelaHospedes telaHospedes = DIContainer.getInstance().criarTelaHospedes();
+        dashboardView = new DashboardView(DIContainer.getInstance().getDashboardController());
+        telaReservas = DIContainer.getInstance().criarTelaReservas();
+        telaHospedes = DIContainer.getInstance().criarTelaHospedes();
         
         dashboardView.setBackground(ColorPalette.BACKGROUND);
         telaReservas.setBackground(ColorPalette.BACKGROUND);
