@@ -2,56 +2,79 @@ package views.layout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import config.DIContainer;
 import views.dashboard.DashboardView;
 import views.reservas.TelaReservas;
 import views.hospedes.TelaHospedes;
+import components.DsSidebarButton;
+import theme.DesignTokens.ColorPalette;
+import theme.DesignTokens.Typography;
+import theme.DesignTokens.Spacing;
 
 public class MainLayoutView {
     
-    public void showMainLayout() {
-        JFrame mainFrame = new JFrame();
-        JPanel jpSidebar = new JPanel();
-        JPanel jpContent = new JPanel();
-        jpContent.setBackground(Color.WHITE);
+    private JPanel jpContent;
+    private CardLayout cardLayout;
+    
+    // Sidebar buttons
+    private DsSidebarButton btnInicio;
+    private DsSidebarButton btnReservas;
+    private DsSidebarButton btnHospedes;
 
+    public void showMainLayout() {
+        JFrame mainFrame = new JFrame("Hotelaria");
         mainFrame.setLayout(new BorderLayout());
+        
+        JPanel jpSidebar = new JPanel();
+        jpSidebar.setBackground(ColorPalette.SIDEBAR_BG);
+        jpSidebar.setPreferredSize(new Dimension(250, 0));
+        
+        jpContent = new JPanel();
+        cardLayout = new CardLayout();
+        jpContent.setLayout(cardLayout);
+        jpContent.setBackground(ColorPalette.BACKGROUND);
+
         mainFrame.add(jpSidebar, BorderLayout.WEST);
         mainFrame.add(jpContent, BorderLayout.CENTER);
 
-        jpContent.setLayout(new BorderLayout());
-        
-        showDashboard(jpContent);
+        setupSidebar(jpSidebar);
+        setupViews();
 
-        setupSidebar(jpSidebar, jpContent);
-
-        mainFrame.setSize(600, 550);
+        mainFrame.setSize(1024, 768); 
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setLocationRelativeTo(null);
         mainFrame.setVisible(true);
+        
+        // Show default view
+        cardLayout.show(jpContent, "DASHBOARD");
+        updateActiveButton(btnInicio);
     }
 
-    public void setupSidebar (JPanel jpSidebar, JPanel jpContent) {
-        JButton btnInicio = new JButton("Página Inicial");
-        JButton btnReservas = new JButton("Reservas");
-        JButton btnHospedes = new JButton("Hóspedes");
-
-        JLabel jlLogo = new JLabel("Hotelaria");
-        jlLogo.setFont(new Font("Arial", Font.BOLD, 18));
-
+    private void setupSidebar(JPanel jpSidebar) {
         jpSidebar.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
+        // Logo
+        JLabel jlLogo = new JLabel("Hotelaria");
+        jlLogo.setFont(Typography.TITLE_FONT);
+        jlLogo.setForeground(ColorPalette.SIDEBAR_TEXT);
+        
+        // Add logo
         gbc.gridx = 0;
-        gbc.insets = new Insets(5, 5, 5, 5);
-
         gbc.gridy = 0;
-        gbc.weighty = 0;
+        gbc.insets = new Insets(Spacing.LG, Spacing.MD, Spacing.XL, Spacing.MD);
+        gbc.anchor = GridBagConstraints.WEST;
         jpSidebar.add(jlLogo, gbc);
 
+        // Buttons
+        btnInicio = new DsSidebarButton("Página Inicial");
+        btnReservas = new DsSidebarButton("Reservas");
+        btnHospedes = new DsSidebarButton("Hóspedes");
+
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(0, Spacing.SM, Spacing.SM, Spacing.SM);
+        gbc.weightx = 1.0;
+        
         gbc.gridy = 1;
         jpSidebar.add(btnInicio, gbc);
 
@@ -61,69 +84,47 @@ public class MainLayoutView {
         gbc.gridy = 3;
         jpSidebar.add(btnHospedes, gbc);
 
+        // Spacer to push everything up
         gbc.gridy = 4;
         gbc.weighty = 1.0;
-        jpSidebar.add(new JPanel(), gbc);
+        JPanel spacer = new JPanel();
+        spacer.setOpaque(false);
+        jpSidebar.add(spacer, gbc);
 
-
-        btnInicio.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showDashboard(jpContent);
-            }
-
+        // Listeners
+        btnInicio.addActionListener(e -> {
+            cardLayout.show(jpContent, "DASHBOARD");
+            updateActiveButton(btnInicio);
         });
 
-        btnReservas.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showReservations(jpContent);
-            }
-
+        btnReservas.addActionListener(e -> {
+            cardLayout.show(jpContent, "RESERVAS");
+            updateActiveButton(btnReservas);
         });
 
-        btnHospedes.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showGuests(jpContent);
-            }
-
+        btnHospedes.addActionListener(e -> {
+            cardLayout.show(jpContent, "HOSPEDES");
+            updateActiveButton(btnHospedes);
         });
     }
 
-    public void showDashboard(JPanel jpContent) {
-        jpContent.removeAll();
-
+    private void setupViews() {
         DashboardView dashboardView = new DashboardView(DIContainer.getInstance().getDashboardController());
-
-        jpContent.add(dashboardView);
-
-        jpContent.revalidate();
-        jpContent.repaint();
-    }
-
-    public void showReservations(JPanel jpContent) {
-        jpContent.removeAll();
-
         TelaReservas telaReservas = DIContainer.getInstance().criarTelaReservas();
-
-        jpContent.add(telaReservas, BorderLayout.CENTER);
-
-        jpContent.revalidate();
-        jpContent.repaint();
-    }
-
-    public void showGuests(JPanel jpContent) {
-        jpContent.removeAll();
-
         TelaHospedes telaHospedes = DIContainer.getInstance().criarTelaHospedes();
+        
+        dashboardView.setBackground(ColorPalette.BACKGROUND);
+        telaReservas.setBackground(ColorPalette.BACKGROUND);
+        telaHospedes.setBackground(ColorPalette.BACKGROUND);
 
-        jpContent.add(telaHospedes);
-
-        jpContent.revalidate();
-        jpContent.repaint();
+        jpContent.add(dashboardView, "DASHBOARD");
+        jpContent.add(telaReservas, "RESERVAS");
+        jpContent.add(telaHospedes, "HOSPEDES");
+    }
+    
+    private void updateActiveButton(DsSidebarButton activeBtn) {
+        btnInicio.setActive(btnInicio == activeBtn);
+        btnReservas.setActive(btnReservas == activeBtn);
+        btnHospedes.setActive(btnHospedes == activeBtn);
     }
 }
