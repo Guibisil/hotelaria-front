@@ -33,7 +33,7 @@ public class DsDialog extends JDialog {
         
         getContentPane().setBackground(ColorPalette.BACKGROUND);
         setResizable(false);
-        setSize(400, 200);
+        setSize(400, 224);
         setLocationRelativeTo(parent);
 
         JPanel contentPanel = new JPanel(new BorderLayout(Spacing.MD, Spacing.MD));
